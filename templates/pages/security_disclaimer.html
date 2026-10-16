@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Electoral Architecture & Security Disclaimer — BallotBridge{% endblock %}
+
+{% block content %}
+<div class="container container-narrow" style="padding: 3.5rem 1rem;">
+  <div style="text-align: center; margin-bottom: 2.5rem;">
+    <span class="section-tag">Academic & Technical Perspective</span>
+    <h1 style="font-size: 2.5rem; color: var(--navy-950); margin-bottom: 0.5rem;">
+      Security Architecture & Electoral Disclaimer
+    </h1>
+    <p style="color: var(--slate-600); font-size: 1rem;">
+      Distinguishing web application governance controls from mathematical End-to-End Verifiable public election systems.
+    </p>
+  </div>
+
+  <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-xl); padding: 2.5rem; box-shadow: var(--shadow-sm); line-height: 1.7; color: var(--navy-800);">
+    <div style="background: #fffbeb; border-left: 4px solid #f59e0b; padding: 1.25rem 1.5rem; border-radius: var(--radius-sm); margin-bottom: 2rem;">
+      <h3 style="color: #92400e; font-size: 1.15rem; margin-bottom: 0.35rem;">
+        <i class="fa-solid fa-triangle-exclamation" style="margin-right: 0.35rem;"></i> Important Portfolio Disclosure
+      </h3>
+      <p style="color: #78350f; font-size: 0.95rem; margin: 0;">
+        BallotBridge is an advanced portfolio application demonstrating modern full-stack web engineering, transactional integrity, and secret-ballot workflow modeling. It is designed for educational, organizational, and simulated governance contexts.
+      </p>
+    </div>
+
+    <h2 style="font-size: 1.5rem; color: var(--navy-950); margin-bottom: 1rem;">
+      Why Web-Application Controls Differ from Public Electoral Infrastructure
+    </h2>
+    <p style="margin-bottom: 1.25rem;">
+      In public statutory elections (e.g. municipal, state, or federal parliamentary elections), standard web application architectures (such as relational databases, HTTPS sessions, and server-side authentication) are insufficient to meet international electoral standards. Key reasons include:
+    </p>
+
+    <div style="display: flex; flex-direction: column; gap: 1.25rem; margin-bottom: 2rem;">
+      <div style="background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius-md); padding: 1.25rem;">
+        <h4 style="color: var(--navy-900); font-size: 1.05rem; margin-bottom: 0.35rem;">
+          <i class="fa-solid fa-calculator" style="color: var(--teal-600); margin-right: 0.4rem;"></i>
+          1. End-to-End Verifiability (E2EV)
+        </h4>
+        <p style="font-size: 0.9rem; color: var(--navy-700); margin: 0;">
+          A true E2EV system allows any voter to verify that their ballot was cast-as-intended, recorded-as-cast, and tallied-as-recorded without trusting the server administrators or the operating system. This is achieved via homomorphic encryption (e.g. ElGamal) or zero-knowledge cryptographic proofs rather than database rows.
+        </p>
+      </div>
+
+      <div style="background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius-md); padding: 1.25rem;">
+        <h4 style="color: var(--navy-900); font-size: 1.05rem; margin-bottom: 0.35rem;">
+          <i class="fa-solid fa-hand-holding-hand" style="color: var(--teal-600); margin-right: 0.4rem;"></i>
+          2. Coercion Resistance & Receipt-Freeness
+        </h4>
+        <p style="font-size: 0.9rem; color: var(--navy-700); margin: 0;">
+          In real remote voting, voters may be coerced by family members, employers, or criminal syndicates. Protocols such as Juels-Catalano-Jakobsson (JCJ) or Civitas allow voters to cast fake ballots or overwrite coerced votes using secret credentials. In web simulations, receipt tokens only prove turnout, not candidate choices.
+        </p>
+      </div>
+
+      <div style="background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius-md); padding: 1.25rem;">
+        <h4 style="color: var(--navy-900); font-size: 1.05rem; margin-bottom: 0.35rem;">
+          <i class="fa-solid fa-microchip" style="color: var(--teal-600); margin-right: 0.4rem;"></i>
+          3. Hardware Security Modules (HSM) & Client Compromise
+        </h4>
+        <p style="font-size: 0.9rem; color: var(--navy-700); margin: 0;">
+          Standard web browsers are susceptible to local spyware, keyloggers, and malware that could alter a voter's selection before transmission. Real-world electronic voting requires voter-verifiable paper audit trails (VVPAT) or audited dedicated client isolation.
+        </p>
+      </div>
+    </div>
+
+    <h2 style="font-size: 1.5rem; color: var(--navy-950); margin-bottom: 0.75rem;">
+      What BallotBridge Implements
+    </h2>
+    <p style="margin-bottom: 1.25rem;">
+      Within the context of a modern web application, BallotBridge implements the highest attainable application-level governance safeguards:
+    </p>
+    <ul style="padding-left: 1.5rem; margin-bottom: 1.5rem;">
+      <li>Database-level separation of anonymous ballots and voter participation ledgers.</li>
+      <li>Atomic database transactions preventing race conditions and double voting.</li>
+      <li>Server-side validation on every voting endpoint, regardless of frontend state.</li>
+      <li>Tamper-evident audit logging of system and administrative events.</li>
+      <li>Sealed tally counts until authorized publication after closure.</li>
+    </ul>
+
+    <div style="text-align: center; margin-top: 2rem;">
+      <a href="{% url 'voter_dashboard' %}" class="btn btn-primary">Proceed to Voter Portal</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

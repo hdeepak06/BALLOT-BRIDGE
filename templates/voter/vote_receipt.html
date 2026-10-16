@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Ballot Receipt — {{ election.title }}{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 3rem 1rem;">
+  <div class="receipt-card">
+    <div style="text-align: center;">
+      <div class="receipt-stamp">
+        <i class="fa-solid fa-certificate"></i>
+        <span>Ballot Confirmed & Recorded</span>
+      </div>
+
+      <h1 style="font-size: 2rem; color: var(--navy-950); margin-bottom: 0.5rem;">
+        Digital Voting Receipt
+      </h1>
+      <p style="color: var(--slate-600); font-size: 0.95rem; margin-bottom: 1.5rem;">
+        Official cryptographic proof of participation for <strong>{{ election.title }}</strong>
+      </p>
+    </div>
+
+    <!-- Receipt Token Box -->
+    <div style="margin: 1.5rem 0;">
+      <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; color: var(--slate-500); display: block; margin-bottom: 0.35rem;">
+        Your Verifiable Receipt Token:
+      </span>
+      <div class="receipt-token-box">
+        <span id="receiptTokenVal">{{ receipt_token }}</span>
+        <button type="button" class="copy-btn" onclick="copyReceiptToken('receiptTokenVal')">
+          <i class="fa-solid fa-copy"></i>
+          <span id="copyBtnText">Copy</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Details Table -->
+    <div style="background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.5rem; font-size: 0.875rem;">
+      <div style="display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px solid var(--slate-200);">
+        <span style="color: var(--slate-500);">Election Name:</span>
+        <strong style="color: var(--navy-900);">{{ election.title }}</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px solid var(--slate-200);">
+        <span style="color: var(--slate-500);">Category:</span>
+        <span style="color: var(--navy-800);">{{ election.get_category_display }}</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px solid var(--slate-200);">
+        <span style="color: var(--slate-500);">Timestamp Recorded:</span>
+        <span style="font-family: var(--font-mono); color: var(--navy-800);">{{ participation.voted_at|date:"Y-m-d H:i:s" }} UTC</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; padding: 0.4rem 0;">
+        <span style="color: var(--slate-500);">Anonymity Protocol:</span>
+        <span style="color: var(--emerald-600); font-weight: 700;"><i class="fa-solid fa-check"></i> Double-Blind Cryptographic Sever</span>
+      </div>
+    </div>
+
+    <!-- Cryptographic Privacy Note -->
+    <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: var(--radius-md); padding: 1rem 1.25rem; font-size: 0.825rem; color: #115e59; line-height: 1.5; margin-bottom: 2rem;">
+      <div style="display: flex; gap: 0.5rem; align-items: flex-start;">
+        <i class="fa-solid fa-user-shield" style="font-size: 1.1rem; color: var(--teal-600); margin-top: 0.1rem;"></i>
+        <div>
+          <strong>Secret Ballot Guarantee:</strong>
+          This receipt token confirms your participation was recorded in the turnout roll, but mathematically contains NO data regarding which candidate you selected. You cannot use this token to prove your candidate selection to anyone, preventing voter coercion and vote-buying.
+        </div>
+      </div>
+    </div>
+
+    <!-- Receipt Action Buttons -->
+    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+      <button type="button" class="btn btn-secondary" onclick="window.print()">
+        <i class="fa-solid fa-print"></i>
+        <span>Print Receipt</span>
+      </button>
+      <a href="{% url 'profile' %}" class="btn btn-navy">
+        <i class="fa-solid fa-user"></i>
+        <span>My Voter Ledger</span>
+      </a>
+      <a href="{% url 'voter_dashboard' %}" class="btn btn-primary">
+        <i class="fa-solid fa-arrow-right"></i>
+        <span>Return to Dashboard</span>
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

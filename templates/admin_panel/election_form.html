@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if is_edit %}Edit Election — {{ election.title }}{% else %}Create New Election{% endif %} — BallotBridge{% endblock %}
+
+{% block content %}
+<div class="container container-narrow" style="padding: 2.5rem 1rem;">
+  <div style="margin-bottom: 2rem;">
+    <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary btn-sm" style="margin-bottom: 0.75rem;">
+      <i class="fa-solid fa-arrow-left"></i>
+      <span>Back to Admin Portal</span>
+    </a>
+    <h1 style="font-size: 2.1rem; color: var(--navy-950);">
+      {% if is_edit %}Edit Election: {{ election.title }}{% else %}Create New Simulated Election{% endif %}
+    </h1>
+    <p style="color: var(--slate-500); font-size: 0.95rem;">
+      Configure electoral parameters, voting windows, and constituent eligibility rules.
+    </p>
+  </div>
+
+  <!-- Election Configuration Form -->
+  <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-xl); padding: 2.5rem; box-shadow: var(--shadow-sm); margin-bottom: 2.5rem;">
+    <form method="POST">
+      {% csrf_token %}
+
+      {% if form.errors %}
+      <div class="alert alert-danger">
+        {% for field, errors in form.errors.items %}
+          {% for error in errors %}
+            <p><strong>{{ field|title }}:</strong> {{ error }}</p>
+          {% endfor %}
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <div class="form-group">
+        <label class="form-label" for="id_title">Election Title *</label>
+        {{ form.title }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="id_tagline">Summary Tagline</label>
+        {{ form.tagline }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="id_description">Detailed Scope & Description *</label>
+        {{ form.description }}
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="id_category">Category</label>
+          {{ form.category }}
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="id_status">Lifecycle Status *</label>
+          {{ form.status }}
+          <span class="form-hint">Status is strictly validated on the server on every ballot submission.</span>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="id_start_time">Voting Start Time (UTC) *</label>
+          {{ form.start_time }}
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="id_end_time">Voting End Time (UTC) *</label>
+          {{ form.end_time }}
+        </div>
+      </div>
+
+      <div style="background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius-md); padding: 1.25rem; margin: 1.5rem 0;">
+        <h4 style="font-size: 0.85rem; text-transform: uppercase; color: var(--navy-800); letter-spacing: 0.05em; margin-bottom: 0.75rem;">
+          <i class="fa-solid fa-users-gear" style="color: var(--teal-600); margin-right: 0.35rem;"></i>
+          Voter Eligibility & Simulation Settings
+        </h4>
+        <div class="form-group">
+          <label class="form-label" for="id_eligibility_criteria">Eligible Constituency</label>
+          {{ form.eligibility_criteria }}
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+          {{ form.is_featured }}
+          <label for="id_is_featured" style="font-size: 0.875rem; font-weight: 600; color: var(--navy-800); cursor: pointer;">
+            Display as Featured Election on Homepage
+          </label>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary">
+          <i class="fa-solid fa-floppy-disk"></i>
+          <span>Save Election</span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Candidates Management Section (When Editing) -->
+  {% if is_edit %}
+  <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-xl); padding: 2rem; box-shadow: var(--shadow-sm);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <div>
+        <h3 style="font-size: 1.35rem; color: var(--navy-950);">Registered Candidates ({{ candidates.count }})</h3>
+        <p style="color: var(--slate-500); font-size: 0.875rem;">Manage profiles, credentials, and policy statements.</p>
+      </div>
+      <a href="{% url 'admin_candidate_create' slug=election.slug %}" class="btn btn-primary btn-sm">
+        <i class="fa-solid fa-plus"></i>
+        <span>Add Candidate</span>
+      </a>
+    </div>
+
+    {% if candidates %}
+    <div style="overflow-x: auto;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Ballot #</th>
+            <th>Name</th>
+            <th>Party / Slate</th>
+            <th>Role Title</th>
+            <th>Ballots Cast</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for cand in candidates %}
+          <tr>
+            <td style="font-weight: 700;">#{{ cand.ballot_number }}</td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.65rem;">
+                <div class="avatar-bubble" style="background: {{ cand.avatar_color|default:'#0284c7' }}; width: 32px; height: 32px; font-size: 0.8rem;">
+                  {{ cand.avatar_initials|default:cand.name|slice:":2"|upper }}
+                </div>
+                <strong style="color: var(--navy-900);">{{ cand.name }}</strong>
+              </div>
+            </td>
+            <td><span class="candidate-party-badge">{{ cand.party_or_slate|default:"Independent" }}</span></td>
+            <td style="font-size: 0.85rem; color: var(--slate-600);">{{ cand.role_title }}</td>
+            <td style="font-weight: 700; color: var(--teal-600);">{{ cand.current_votes_count }}</td>
+            <td style="white-space: nowrap;">
+              <a href="{% url 'admin_candidate_edit' candidate_id=cand.id %}" class="btn btn-secondary btn-sm" title="Edit candidate">
+                <i class="fa-solid fa-pen"></i>
+              </a>
+              {% if cand.current_votes_count == 0 %}
+              <form method="POST" action="{% url 'admin_candidate_delete' candidate_id=cand.id %}" style="display: inline-block; margin-left: 0.25rem;" onsubmit="return confirm('Remove candidate {{ cand.name }}?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-sm" title="Delete candidate">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </form>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 2rem; background: var(--slate-50); border-radius: var(--radius-md); border: 1px dashed var(--slate-300);">
+      <p style="color: var(--slate-500); margin-bottom: 1rem;">No candidates registered for this election yet.</p>
+      <a href="{% url 'admin_candidate_create' slug=election.slug %}" class="btn btn-primary btn-sm">
+        <i class="fa-solid fa-user-plus"></i>
+        <span>Add First Candidate</span>
+      </a>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

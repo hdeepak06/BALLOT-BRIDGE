@@ -1,0 +1,73 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}BallotBridge — Secure E-Voting Platform{% endblock %}</title>
+  <meta name="description" content="{% block meta_desc %}BallotBridge is a state-of-the-art secure digital e-voting simulation platform engineered with secret-ballot privacy and verifiable participation.{% endblock %}">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Core Stylesheet -->
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+  <!-- Top Global Simulation Notice Banner -->
+  <div style="background: #0f172a; color: #94a3b8; font-size: 0.78rem; text-align: center; padding: 0.35rem 1rem; border-bottom: 1px solid #1e293b;">
+    <span style="display: inline-flex; align-items: center; gap: 0.4rem;">
+      <i class="fa-solid fa-circle-info" style="color: #2dd4bf;"></i>
+      <strong>BallotBridge Simulation Mode:</strong> Fictional demonstration environment. Secret-ballot architecture simulation.
+      <a href="{% url 'security_disclaimer' %}" style="color: #38bdf8; text-decoration: underline; margin-left: 0.4rem;">Read Electoral Architecture Disclaimer</a>
+    </span>
+  </div>
+
+  <!-- Header / Navigation -->
+  {% include 'navbar.html' %}
+
+  <!-- Global Alerts / Django Messages -->
+  {% if messages %}
+  <div class="container alerts-wrapper">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags|default:'info' }}">
+      {% if message.tags == 'success' %}
+        <i class="fa-solid fa-circle-check" style="color: var(--emerald-600); font-size: 1.15rem;"></i>
+      {% elif message.tags == 'danger' or message.tags == 'error' %}
+        <i class="fa-solid fa-triangle-exclamation" style="color: var(--rose-600); font-size: 1.15rem;"></i>
+      {% elif message.tags == 'warning' %}
+        <i class="fa-solid fa-circle-exclamation" style="color: var(--amber-600); font-size: 1.15rem;"></i>
+      {% else %}
+        <i class="fa-solid fa-circle-info" style="color: var(--blue-600); font-size: 1.15rem;"></i>
+      {% endif %}
+      <div style="flex-grow: 1;">{{ message }}</div>
+      <button type="button" class="alert-close" aria-label="Close Alert">&times;</button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Main View Area -->
+  <main style="flex: 1; display: flex; flex-direction: column;">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Site Footer -->
+  {% include 'footer.html' %}
+
+  <!-- Core JavaScript -->
+  <script src="{% static 'js/main.js' %}"></script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,408 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}BallotBridge — Every Vote Counts | Secure E-Voting Platform{% endblock %}
+
+{% block content %}
+<!-- HERO SECTION -->
+<section class="hero-section">
+  <div class="container hero-inner">
+    <div>
+      <div class="hero-badge">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span>Digital Democracy Infrastructure</span>
+      </div>
+      <h1 class="hero-title">
+        Every Vote <span class="hero-title-highlight">Counts.</span>
+      </h1>
+      <p class="hero-subtitle">
+        BallotBridge delivers a modern, secure, and intuitive digital voting platform. Engineered with double-blind secret balloting, server-side transactional integrity, and transparent verified election auditing.
+      </p>
+
+      <div class="hero-actions">
+        <a href="{% url 'voter_dashboard' %}" class="btn btn-primary btn-lg">
+          <i class="fa-solid fa-box-archive"></i>
+          <span>Explore Elections</span>
+        </a>
+        {% if not user.is_authenticated %}
+        <a href="{% url 'register' %}" class="btn btn-secondary btn-lg">
+          <i class="fa-solid fa-user-plus"></i>
+          <span>Get Started</span>
+        </a>
+        {% else %}
+        <a href="{% url 'profile' %}" class="btn btn-secondary btn-lg">
+          <i class="fa-solid fa-id-card"></i>
+          <span>View Voter Profile</span>
+        </a>
+        {% endif %}
+      </div>
+
+      <div class="hero-trust-row">
+        <div class="hero-trust-item">
+          <i class="fa-solid fa-lock"></i>
+          <span>Double-Blind Secret Ballot</span>
+        </div>
+        <div class="hero-trust-item">
+          <i class="fa-solid fa-fingerprint"></i>
+          <span>One-Vote Enforcement</span>
+        </div>
+        <div class="hero-trust-item">
+          <i class="fa-solid fa-clipboard-check"></i>
+          <span>Tamper-Evident Audit Logs</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hero Interactive Demonstration Preview Card -->
+    <div>
+      <div class="hero-card">
+        <div class="hero-card-header">
+          <div>
+            <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; color: var(--teal-600); display: block;">
+              Live Interactive Simulation
+            </span>
+            <h3 style="font-size: 1.15rem; color: var(--navy-950);">Democratic Integrity Engine</h3>
+          </div>
+          <span class="simulation-tag">SIMULATED DATA</span>
+        </div>
+
+        <div style="background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.25rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+            <span style="font-size: 0.825rem; font-weight: 700; color: var(--navy-800);">Active Election Turnout</span>
+            <span style="font-size: 0.85rem; font-weight: 800; color: var(--teal-600);">78.4% Participated</span>
+          </div>
+          <div class="participation-metric-bar">
+            <div class="participation-fill" style="width: 78.4%;"></div>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--slate-500); margin-top: 0.4rem;">
+            <span>1,420 Ballots Verified</span>
+            <span>1,810 Eligible Voters</span>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem;">
+          <div style="flex: 1; background: var(--white); border: 1px solid var(--slate-200); padding: 0.85rem; border-radius: var(--radius-md); text-align: center;">
+            <i class="fa-solid fa-shield-check" style="color: var(--emerald-600); font-size: 1.25rem; margin-bottom: 0.25rem;"></i>
+            <span style="display: block; font-size: 0.75rem; font-weight: 700; color: var(--navy-800);">100% Secret</span>
+            <span style="font-size: 0.7rem; color: var(--slate-500);">Unlinkable Choice</span>
+          </div>
+          <div style="flex: 1; background: var(--white); border: 1px solid var(--slate-200); padding: 0.85rem; border-radius: var(--radius-md); text-align: center;">
+            <i class="fa-solid fa-receipt" style="color: var(--blue-600); font-size: 1.25rem; margin-bottom: 0.25rem;"></i>
+            <span style="display: block; font-size: 0.75rem; font-weight: 700; color: var(--navy-800);">Digital Receipts</span>
+            <span style="font-size: 0.7rem; color: var(--slate-500);">Proof of Turnout</span>
+          </div>
+        </div>
+
+        <!-- One-Click Demo Role Switcher -->
+        <div class="demo-account-box">
+          <div class="demo-account-header">
+            <span><i class="fa-solid fa-bolt" style="margin-right: 0.4rem;"></i> Quick Demo Logins</span>
+            <span style="font-size: 0.7rem; opacity: 0.8;">Click to switch</span>
+          </div>
+          <div class="demo-pills">
+            <a href="{% url 'quick_demo_login' username='admin' %}" class="demo-pill-btn">
+              <strong>Admin Portal</strong>
+              <span>admin (Full Control)</span>
+            </a>
+            <a href="{% url 'quick_demo_login' username='voter_alex' %}" class="demo-pill-btn">
+              <strong>Voter (Alex)</strong>
+              <span>Ready to Vote</span>
+            </a>
+            <a href="{% url 'quick_demo_login' username='voter_priya' %}" class="demo-pill-btn">
+              <strong>Voter (Priya)</strong>
+              <span>Already Voted Demo</span>
+            </a>
+            <a href="{% url 'quick_demo_login' username='voter_david' %}" class="demo-pill-btn">
+              <strong>New Voter (David)</strong>
+              <span>Fresh Voter Profile</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO PLATFORM METRICS -->
+<section class="metrics-strip">
+  <div class="container">
+    <div class="metrics-grid">
+      <div>
+        <div class="metric-item-num">{{ total_elections|default:"5" }}</div>
+        <div class="metric-item-label">Conducted Demo Elections</div>
+      </div>
+      <div>
+        <div class="metric-item-num">{{ total_ballots|default:"1,248" }}</div>
+        <div class="metric-item-label">Confidential Ballots Cast</div>
+      </div>
+      <div>
+        <div class="metric-item-num">{{ total_voters|default:"3,450" }}</div>
+        <div class="metric-item-label">Registered Verified Voters</div>
+      </div>
+      <div>
+        <div class="metric-item-num">100%</div>
+        <div class="metric-item-label">Cryptographic Anonymity</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS SECTION -->
+<section class="section section-alt" id="how-it-works">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Streamlined & Trustworthy</span>
+      <h2 class="section-title">How BallotBridge Works</h2>
+      <p class="section-desc">
+        A seamless 4-step workflow engineered to guarantee both voter convenience and strict electoral integrity.
+      </p>
+    </div>
+
+    <div class="steps-grid">
+      <!-- Step 1 -->
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <h3>1. Authenticate & Verify</h3>
+        <p>Voters register and sign in securely through Django's hashed authentication pipeline. The system validates unique institutional identification and voter eligibility.</p>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <h3>2. Explore & Compare</h3>
+        <p>Voters review comprehensive candidate profiles, educational credentials, policy manifestos, and key proposals in an impartial comparison environment.</p>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <h3>3. Cast Confidential Ballot</h3>
+        <p>With atomic transaction locks, the system severs voter identity from candidate choice, recording an encrypted ballot and returning a verifiable participation receipt.</p>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="step-card">
+        <div class="step-num">04</div>
+        <h3>4. Certified Publication</h3>
+        <p>Results remain strictly sealed until election conclusion. Authorized election officials certify and publish transparent statistical charts and turnout analytics.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CORE SECURITY FEATURES -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Engineered for Confidence</span>
+      <h2 class="section-title">Built-In Security & Governance</h2>
+      <p class="section-desc">
+        Every layer of BallotBridge is designed following digital governance best practices and server-enforced guarantees.
+      </p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon-wrapper">
+          <i class="fa-solid fa-user-secret"></i>
+        </div>
+        <h3>Double-Blind Secrecy</h3>
+        <p>Ballot choices are isolated into anonymous cryptographic entries with zero foreign keys to user accounts. Voter identity is permanently separated from political selection.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-wrapper">
+          <i class="fa-solid fa-lock-hashtag"></i>
+        </div>
+        <h3>One-Vote Database Locks</h3>
+        <p>Database constraints and atomic transactions strictly enforce one vote per voter per election. Multiple submissions or ballot tampering attempts are rejected at the database level.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-wrapper">
+          <i class="fa-solid fa-shield-virus"></i>
+        </div>
+        <h3>Server-Side Validation</h3>
+        <p>Voting windows, eligibility groups, and candidate associations are strictly verified by backend Python logic on every request, never trusting client-side scripts.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-wrapper">
+          <i class="fa-solid fa-chart-pie"></i>
+        </div>
+        <h3>Transparent Analytics</h3>
+        <p>Once officially certified, results are visualized through interactive Chart.js bar graphs and doughnut charts with clear turnout metrics and tie-handling logic.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-wrapper">
+          <i class="fa-solid fa-file-shield"></i>
+        </div>
+        <h3>Tamper-Evident Audit Trails</h3>
+        <p>Every administrative milestone (election creation, candidate updates, state transitions, publication) is captured in a system audit log with severity tagging.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-wrapper">
+          <i class="fa-solid fa-receipt"></i>
+        </div>
+        <h3>Verifiable Voter Receipts</h3>
+        <p>Voters receive a unique SHA-256 participation token to independently verify that their participation was counted in turnout records without disclosing candidate choice.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTIVE & UPCOMING DEMO ELECTIONS -->
+<section class="section section-alt">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Participate Today</span>
+      <h2 class="section-title">Featured Demo Elections</h2>
+      <p class="section-desc">
+        Explore simulated elections in different lifecycle stages. Test casting a ballot or inspect certified analytical outcomes.
+      </p>
+    </div>
+
+    <div class="elections-grid">
+      {% for election in active_elections %}
+      <div class="election-card">
+        <div class="election-card-header">
+          <div class="election-top-meta">
+            <span class="badge badge-active">
+              <span class="badge-pulse-dot"></span> Voting Open
+            </span>
+            <span class="election-category-tag">{{ election.get_category_display }}</span>
+          </div>
+          <h3 class="election-card-title">
+            <a href="{% url 'election_detail' slug=election.slug %}">{{ election.title }}</a>
+          </h3>
+          <p class="election-card-desc">{{ election.description }}</p>
+        </div>
+
+        <div class="election-card-body">
+          <div class="timeline-info-row">
+            <i class="fa-regular fa-clock"></i>
+            <span>Ends: {{ election.end_time|date:"M d, Y · H:i" }} UTC</span>
+          </div>
+          <div class="timeline-info-row">
+            <i class="fa-solid fa-users"></i>
+            <span>{{ election.candidates.count }} Candidates Registered</span>
+          </div>
+          <div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 600; color: var(--navy-700); margin-bottom: 0.25rem;">
+              <span>Simulated Turnout</span>
+              <span>{{ election.turnout_percentage }}%</span>
+            </div>
+            <div class="participation-metric-bar">
+              <div class="participation-fill" style="width: {{ election.turnout_percentage }}%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="election-card-footer">
+          <a href="{% url 'election_detail' slug=election.slug %}" class="btn btn-secondary btn-sm">
+            <span>View Candidates</span>
+          </a>
+          <a href="{% url 'vote_select' slug=election.slug %}" class="btn btn-primary btn-sm">
+            <i class="fa-solid fa-check-to-slot"></i>
+            <span>Cast Vote</span>
+          </a>
+        </div>
+      </div>
+      {% empty %}
+      <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; background: var(--white); border-radius: var(--radius-lg); border: 1px dashed var(--slate-300);">
+        <i class="fa-solid fa-calendar-xmark" style="font-size: 2.5rem; color: var(--slate-400); margin-bottom: 1rem;"></i>
+        <h4 style="font-size: 1.25rem; color: var(--navy-800);">No Active Elections Right Now</h4>
+        <p style="color: var(--slate-500); margin-bottom: 1.5rem;">Log into the Admin Portal to schedule or open simulated elections.</p>
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-navy">Open Admin Portal</a>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div style="text-align: center; margin-top: 2.5rem;">
+      <a href="{% url 'voter_dashboard' %}" class="btn btn-secondary">
+        <span>Browse All Elections (Upcoming & Published)</span>
+        <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FREQUENTLY ASKED QUESTIONS -->
+<section class="section" id="faq">
+  <div class="container container-narrow">
+    <div class="section-header">
+      <span class="section-tag">Transparency & Answers</span>
+      <h2 class="section-title">Frequently Asked Questions</h2>
+      <p class="section-desc">
+        Everything you need to know about BallotBridge's privacy model and verification workflow.
+      </p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 1rem;">
+      <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-md); padding: 1.5rem;" class="faq-item">
+        <h4 style="font-size: 1.1rem; color: var(--navy-900); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+          <i class="fa-solid fa-circle-question" style="color: var(--teal-600);"></i>
+          Can anyone, including system administrators, see who I voted for?
+        </h4>
+        <p style="color: var(--navy-600); font-size: 0.925rem; line-height: 1.6;">
+          No. BallotBridge utilizes double-blind separation. The database table storing cast votes (<code>Ballot</code>) contains only the candidate and election identifiers with an anonymized cryptographic token, having no foreign key or link to your user account. Your participation is recorded solely in a separate ledger (<code>VoterParticipation</code>) to enforce one-person-one-vote without recording your choice.
+        </p>
+      </div>
+
+      <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-md); padding: 1.5rem;" class="faq-item">
+        <h4 style="font-size: 1.1rem; color: var(--navy-900); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+          <i class="fa-solid fa-circle-question" style="color: var(--teal-600);"></i>
+          Can I change or delete my vote after submitting?
+        </h4>
+        <p style="color: var(--navy-600); font-size: 0.925rem; line-height: 1.6;">
+          No. Once a vote is submitted and confirmed, it is permanent. The server-side transaction atomic block simultaneously creates the anonymous ballot and marks your account as having participated. Ordinary application routes provide no mechanism to modify a cast ballot.
+        </p>
+      </div>
+
+      <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-md); padding: 1.5rem;" class="faq-item">
+        <h4 style="font-size: 1.1rem; color: var(--navy-900); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+          <i class="fa-solid fa-circle-question" style="color: var(--teal-600);"></i>
+          Why does BallotBridge state this is a portfolio simulation?
+        </h4>
+        <p style="color: var(--navy-600); font-size: 0.925rem; line-height: 1.6;">
+          Public statutory elections require specialized mathematical guarantees, including End-to-End Verifiability (E2EV), coercion resistance (e.g. JCJ protocols), zero-knowledge proofs, and secure hardware isolation to defend against coercive actors and state-level adversaries. While BallotBridge implements robust best practices for web application governance, it transparently emphasizes the distinction between web simulation and public election infrastructure.
+        </p>
+      </div>
+
+      <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-md); padding: 1.5rem;" class="faq-item">
+        <h4 style="font-size: 1.1rem; color: var(--navy-900); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+          <i class="fa-solid fa-circle-question" style="color: var(--teal-600);"></i>
+          What is the purpose of the Voter Participation Receipt?
+        </h4>
+        <p style="color: var(--navy-600); font-size: 0.925rem; line-height: 1.6;">
+          After casting your vote, the platform generates a unique receipt token (e.g., <code>BB-REC-8F92...</code>). This receipt allows you to prove that your ballot was successfully recorded in the election roll, without providing any cryptographic receipt that could be used by a third party to coerce your candidate selection.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CALL TO ACTION BANNER -->
+<section style="background: linear-gradient(135deg, var(--navy-950), var(--navy-850)); color: var(--white); padding: 4.5rem 0; text-align: center;">
+  <div class="container container-narrow">
+    <h2 style="font-size: 2.25rem; font-weight: 800; color: #ffffff; margin-bottom: 1rem;">
+      Ready to Experience Modern Digital Democracy?
+    </h2>
+    <p style="font-size: 1.1rem; color: var(--slate-300); margin-bottom: 2rem;">
+      Join thousands of simulated voters participating in student, corporate, and municipal governance.
+    </p>
+    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+      <a href="{% url 'register' %}" class="btn btn-primary btn-lg">
+        <i class="fa-solid fa-id-card"></i>
+        <span>Create Verified Voter Account</span>
+      </a>
+      <a href="{% url 'voter_dashboard' %}" class="btn btn-secondary btn-lg">
+        <i class="fa-solid fa-compass"></i>
+        <span>Explore Active Ballots</span>
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}

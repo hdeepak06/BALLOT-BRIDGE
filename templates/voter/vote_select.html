@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Cast Ballot — {{ election.title }}{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 2.5rem 1rem;">
+  <!-- Voting Flow Header -->
+  <div style="text-align: center; max-width: 650px; margin: 0 auto 2.5rem;">
+    <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--teal-50); border: 1px solid var(--teal-100); padding: 0.35rem 0.85rem; border-radius: var(--radius-full); color: var(--teal-600); font-size: 0.8rem; font-weight: 700; margin-bottom: 0.75rem;">
+      <i class="fa-solid fa-lock"></i>
+      <span>CONFIDENTIAL OFFICIAL BALLOT · STEP 1 OF 2</span>
+    </div>
+    <h1 style="font-size: 2.25rem; color: var(--navy-950); margin-bottom: 0.5rem;">
+      Cast Your Vote
+    </h1>
+    <p style="color: var(--slate-600); font-size: 1rem;">
+      Select one candidate for <strong>{{ election.title }}</strong>. Your choice will be unlinked from your identity upon submission.
+    </p>
+  </div>
+
+  <!-- Form for Candidate Selection -->
+  <form method="POST" action="{% url 'vote_confirm' slug=election.slug %}" id="ballotForm">
+    {% csrf_token %}
+    <input type="hidden" name="candidate_id" id="selectedCandidateId" value="">
+
+    <div class="candidates-grid" style="margin-bottom: 2.5rem;">
+      {% for cand in candidates %}
+      <div class="candidate-card selectable-candidate-card" data-candidate-id="{{ cand.id }}" id="cand-card-{{ cand.id }}">
+        <span class="ballot-number-pill">#{{ cand.ballot_number }}</span>
+
+        <div class="candidate-header">
+          <div class="candidate-avatar" style="background: {{ cand.avatar_color|default:'#0284c7' }};">
+            {{ cand.avatar_initials|default:cand.name|slice:":2"|upper }}
+          </div>
+          <div class="candidate-info">
+            <h3>{{ cand.name }}</h3>
+            <span class="candidate-party-badge">{{ cand.party_or_slate|default:"Independent" }}</span>
+            <span style="display: block; font-size: 0.8rem; color: var(--slate-500); margin-top: 0.15rem;">
+              {{ cand.role_title }}
+            </span>
+          </div>
+        </div>
+
+        <p class="candidate-bio">
+          {{ cand.short_bio }}
+        </p>
+
+        <div class="candidate-proposals-box">
+          <h4>Key Proposals</h4>
+          <ul class="candidate-proposals-list">
+            {% for proposal in cand.get_proposals_list|slice:":2" %}
+            <li><i class="fa-solid fa-circle-check"></i> {{ proposal }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <!-- Custom Selection Button at bottom of card -->
+        <div class="candidate-radio-wrapper">
+          <div class="custom-radio"></div>
+          <span>Select this Candidate</span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Action Bar -->
+    <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-xl); padding: 1.75rem 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; box-shadow: var(--shadow-sm); max-width: 800px; margin: 0 auto;">
+      <a href="{% url 'election_detail' slug=election.slug %}" class="btn btn-secondary">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span>Cancel & Return</span>
+      </a>
+
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <span style="font-size: 0.85rem; color: var(--slate-500);">
+          <i class="fa-solid fa-circle-info" style="color: var(--teal-600);"></i> Confirmation required on next step
+        </span>
+        <button type="submit" class="btn btn-primary btn-lg" id="proceedVoteBtn" disabled>
+          <span>Review Selection</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

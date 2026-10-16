@@ -1,0 +1,82 @@
+{% load static %}
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <!-- Col 1: Brand Info -->
+      <div>
+        <div style="display: flex; align-items: center; gap: 0.65rem; margin-bottom: 1rem;">
+          <img src="{% static 'img/favicon.svg' %}" alt="BallotBridge" style="height: 32px; width: 32px;">
+          <span style="font-family: var(--font-heading); font-size: 1.4rem; font-weight: 800; color: #ffffff;">
+            Ballot<span style="color: #14b8a6;">Bridge</span>
+          </span>
+        </div>
+        <p class="footer-brand-tagline">
+          {{ APP_TAGLINE }}
+        </p>
+        <p style="font-size: 0.85rem; color: var(--slate-400); line-height: 1.6;">
+          Next-generation simulated digital voting platform demonstrating double-blind secret balloting, server-side eligibility enforcement, and certified election results publishing.
+        </p>
+      </div>
+
+      <!-- Col 2: Navigation -->
+      <div>
+        <h4 class="footer-heading">Elections & Voting</h4>
+        <ul class="footer-links">
+          <li><a href="{% url 'voter_dashboard' %}"><i class="fa-solid fa-chevron-right" style="font-size: 0.75rem;"></i> Active Elections</a></li>
+          <li><a href="{% url 'voter_dashboard' %}?tab=upcoming"><i class="fa-solid fa-chevron-right" style="font-size: 0.75rem;"></i> Scheduled Elections</a></li>
+          <li><a href="{% url 'voter_dashboard' %}?tab=closed"><i class="fa-solid fa-chevron-right" style="font-size: 0.75rem;"></i> Certified Results</a></li>
+          {% if user.is_authenticated %}
+          <li><a href="{% url 'profile' %}"><i class="fa-solid fa-chevron-right" style="font-size: 0.75rem;"></i> Participation History</a></li>
+          {% else %}
+          <li><a href="{% url 'register' %}"><i class="fa-solid fa-chevron-right" style="font-size: 0.75rem;"></i> Register to Vote</a></li>
+          {% endif %}
+        </ul>
+      </div>
+
+      <!-- Col 3: Governance & Platform -->
+      <div>
+        <h4 class="footer-heading">Platform & Admin</h4>
+        <ul class="footer-links">
+          <li><a href="{% url 'about' %}"><i class="fa-solid fa-chevron-right" style="font-size: 0.75rem;"></i> How BallotBridge Works</a></li>
+          <li><a href="{% url 'admin_dashboard' %}"><i class="fa-solid fa-chevron-right" style="font-size: 0.75rem;"></i> Administrator Portal</a></li>
+          <li><a href="{% url 'admin_audit_logs' %}"><i class="fa-solid fa-chevron-right" style="font-size: 0.75rem;"></i> System Audit Ledger</a></li>
+          <li><a href="{% url 'security_disclaimer' %}"><i class="fa-solid fa-chevron-right" style="font-size: 0.75rem;"></i> Architecture Specs</a></li>
+        </ul>
+      </div>
+
+      <!-- Col 4: Legal & Trust -->
+      <div>
+        <h4 class="footer-heading">Integrity & Policies</h4>
+        <ul class="footer-links">
+          <li><a href="{% url 'security_disclaimer' %}"><i class="fa-solid fa-shield-halved" style="font-size: 0.75rem;"></i> Security Disclaimer</a></li>
+          <li><a href="{% url 'privacy' %}"><i class="fa-solid fa-lock" style="font-size: 0.75rem;"></i> Secret Ballot Privacy</a></li>
+          <li><a href="{% url 'terms' %}"><i class="fa-solid fa-scale-balanced" style="font-size: 0.75rem;"></i> Terms of Service</a></li>
+          <li><a href="{% url 'about' %}#faq"><i class="fa-solid fa-circle-question" style="font-size: 0.75rem;"></i> Platform FAQ</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Educational Portfolio Simulation Disclaimer Banner -->
+    <div class="footer-disclaimer-card">
+      <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+        <i class="fa-solid fa-scale-unbalanced" style="color: var(--teal-400); font-size: 1.15rem; margin-top: 0.2rem;"></i>
+        <div>
+          <strong style="color: #ffffff; display: block; margin-bottom: 0.35rem;">Academic & Portfolio Simulation Notice</strong>
+          BallotBridge demonstrates cryptographic double-blind separation, server-side transaction locks, and tamper-evident audit logging within a modern web framework. However, ordinary application-level controls alone do not establish the end-to-end verifiability (E2EV), coercion resistance, hardware security isolation, or mathematical zero-knowledge proofs legally required for public statutory elections. All candidate profiles, organizations, and election scenarios presented are simulated demonstration data.
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Copyright -->
+    <div class="footer-bottom">
+      <div>
+        &copy; {{ CURRENT_YEAR }} BallotBridge E-Voting Platform. All rights reserved.
+      </div>
+      <div style="display: flex; gap: 1.5rem;">
+        <a href="{% url 'privacy' %}">Privacy Policy</a>
+        <a href="{% url 'terms' %}">Terms</a>
+        <a href="{% url 'security_disclaimer' %}">Disclaimer</a>
+      </div>
+    </div>
+  </div>
+</footer>

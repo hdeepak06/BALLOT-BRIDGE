@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Voter Profile & Records — BallotBridge{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 2.5rem 1rem;">
+  <div style="display: grid; grid-template-columns: 340px 1fr; gap: 2rem;">
+    <!-- Left Column: Voter ID Card -->
+    <div>
+      <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-xl); padding: 2rem; box-shadow: var(--shadow-sm); text-align: center; margin-bottom: 1.5rem;">
+        <div class="avatar-bubble" style="width: 84px; height: 84px; font-size: 2.2rem; margin: 0 auto 1.25rem; background: {{ profile.avatar_color|default:'#0d9488' }};">
+          {{ user.first_name|default:user.username|slice:":1"|upper }}
+        </div>
+        <h3 style="font-size: 1.35rem; color: var(--navy-950); margin-bottom: 0.25rem;">
+          {{ user.get_full_name|default:user.username }}
+        </h3>
+        <span style="font-size: 0.85rem; color: var(--teal-600); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">
+          {{ profile.get_role_display }}
+        </span>
+
+        <!-- Digital Voter Card -->
+        <div style="background: linear-gradient(135deg, var(--navy-950), var(--navy-850)); color: var(--white); border-radius: var(--radius-lg); padding: 1.5rem; margin-top: 1.5rem; text-align: left; position: relative; overflow: hidden;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <span style="font-size: 0.7rem; color: var(--teal-400); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;">
+              BALLOTBRIDGE VERIFIED VOTER
+            </span>
+            <i class="fa-solid fa-certificate" style="color: #38bdf8;"></i>
+          </div>
+
+          <div style="margin-bottom: 1rem;">
+            <span style="font-size: 0.72rem; color: var(--slate-400); display: block;">UNIQUE VOTER ID</span>
+            <span style="font-family: var(--font-mono); font-size: 1.15rem; font-weight: 700; color: #ffffff; letter-spacing: 0.05em;">
+              {{ profile.voter_id }}
+            </span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.75rem; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 0.75rem;">
+            <div>
+              <span style="color: var(--slate-400); display: block;">DEMO ID</span>
+              <span style="font-weight: 600; color: var(--slate-200);">{{ profile.demo_id_number|default:"SIM-VERIFIED" }}</span>
+            </div>
+            <div>
+              <span style="color: var(--slate-400); display: block;">STATUS</span>
+              <span style="color: #4ade80; font-weight: 700;"><i class="fa-solid fa-circle-check"></i> Verified</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 1.5rem;">
+          <a href="{% url 'password_change' %}" class="btn btn-secondary btn-sm" style="width: 100%;">
+            <i class="fa-solid fa-key"></i>
+            <span>Change Password</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Privacy Assurance Reminder -->
+      <div style="background: var(--slate-100); border: 1px solid var(--slate-200); border-radius: var(--radius-md); padding: 1.25rem; font-size: 0.85rem; color: var(--slate-600); line-height: 1.5;">
+        <div style="display: flex; gap: 0.5rem; align-items: flex-start; margin-bottom: 0.5rem;">
+          <i class="fa-solid fa-user-shield" style="color: var(--teal-600); margin-top: 0.15rem;"></i>
+          <strong style="color: var(--navy-800);">Secrecy Guaranteed</strong>
+        </div>
+        Your candidate selection is permanently unlinked from this profile in the database. Only your participation status and audit receipt tokens are logged.
+      </div>
+    </div>
+
+    <!-- Right Column: Edit Profile & Voting History -->
+    <div>
+      <!-- Profile Details Form -->
+      <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-xl); padding: 2rem; box-shadow: var(--shadow-sm); margin-bottom: 2rem;">
+        <h3 style="font-size: 1.35rem; color: var(--navy-950); margin-bottom: 0.5rem;">Voter Profile Details</h3>
+        <p style="color: var(--slate-500); font-size: 0.9rem; margin-bottom: 1.5rem;">Update your demographic and constituency information</p>
+
+        <form method="POST" action="{% url 'profile' %}">
+          {% csrf_token %}
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label">First Name</label>
+              {{ form.first_name }}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last Name</label>
+              {{ form.last_name }}
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label">Email Address</label>
+              {{ form.email }}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone Number</label>
+              {{ form.phone_number }}
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label">Organization / Institution</label>
+              {{ form.organization }}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Department / Constituency</label>
+              {{ form.department }}
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Demo ID Number</label>
+            {{ form.demo_id_number }}
+          </div>
+
+          <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-floppy-disk"></i>
+            <span>Save Profile Changes</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Confidential Voting Participation History -->
+      <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-xl); padding: 2rem; box-shadow: var(--shadow-sm);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+          <div>
+            <h3 style="font-size: 1.35rem; color: var(--navy-950);">Confidential Participation Ledger</h3>
+            <p style="color: var(--slate-500); font-size: 0.875rem;">Verified records of ballots cast. Notice: candidate selections are strictly omitted to protect ballot secrecy.</p>
+          </div>
+          <span class="badge badge-published">{{ participations.count }} Ballots Verified</span>
+        </div>
+
+        {% if participations %}
+        <div style="overflow-x: auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Election</th>
+                <th>Status</th>
+                <th>Time Cast</th>
+                <th>Verifiable Receipt Token</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for part in participations %}
+              <tr>
+                <td>
+                  <strong style="color: var(--navy-900); display: block;">{{ part.election.title }}</strong>
+                  <span style="font-size: 0.78rem; color: var(--slate-500);">{{ part.election.get_category_display }}</span>
+                </td>
+                <td>
+                  <span class="badge badge-active">
+                    <i class="fa-solid fa-check"></i> Recorded
+                  </span>
+                </td>
+                <td style="font-size: 0.85rem; color: var(--slate-600); white-space: nowrap;">
+                  {{ part.voted_at|date:"M d, Y · H:i:s" }}
+                </td>
+                <td>
+                  <code style="font-family: var(--font-mono); font-size: 0.8rem; background: var(--slate-100); padding: 0.2rem 0.5rem; border-radius: 4px; color: var(--teal-600);">
+                    {{ part.receipt_token|slice:":18" }}...
+                  </code>
+                </td>
+                <td style="white-space: nowrap;">
+                  <a href="{% url 'vote_receipt' slug=part.election.slug receipt=part.receipt_token %}" class="btn btn-secondary btn-sm" title="View Full Cryptographic Receipt">
+                    <i class="fa-solid fa-receipt"></i>
+                    <span>Receipt</span>
+                  </a>
+                  {% if part.election.status == 'RESULTS_PUBLISHED' %}
+                  <a href="{% url 'results' slug=part.election.slug %}" class="btn btn-outline-teal btn-sm" style="margin-left: 0.35rem;">
+                    <span>Results</span>
+                  </a>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 2.5rem 1rem; background: var(--slate-50); border-radius: var(--radius-md); border: 1px dashed var(--slate-300);">
+          <i class="fa-solid fa-inbox" style="font-size: 2.2rem; color: var(--slate-400); margin-bottom: 0.75rem;"></i>
+          <h4 style="font-size: 1.1rem; color: var(--navy-800); margin-bottom: 0.25rem;">No Voting Records Yet</h4>
+          <p style="font-size: 0.875rem; color: var(--slate-500); margin-bottom: 1.25rem;">You haven't participated in any simulated elections yet.</p>
+          <a href="{% url 'voter_dashboard' %}" class="btn btn-primary btn-sm">
+            <span>Explore Active Elections</span>
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

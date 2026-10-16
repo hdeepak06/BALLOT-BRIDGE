@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Terms of Service — BallotBridge{% endblock %}
+
+{% block content %}
+<div class="container container-narrow" style="padding: 3.5rem 1rem;">
+  <div style="text-align: center; margin-bottom: 2.5rem;">
+    <span class="section-tag">Governance & Rules</span>
+    <h1 style="font-size: 2.5rem; color: var(--navy-950); margin-bottom: 0.5rem;">
+      Terms of Service
+    </h1>
+    <p style="color: var(--slate-600); font-size: 1rem;">
+      Rules and operational parameters governing participation on BallotBridge.
+    </p>
+  </div>
+
+  <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-xl); padding: 2.5rem; box-shadow: var(--shadow-sm); line-height: 1.7; color: var(--navy-800);">
+    <h3 style="font-size: 1.35rem; color: var(--navy-950); margin-bottom: 0.75rem;">1. One Person, One Vote</h3>
+    <p style="margin-bottom: 1.25rem;">
+      Participants agree not to create duplicate accounts or attempt to cast more than one ballot in any single election. Violations are automatically detected and rejected by database transaction locks.
+    </p>
+
+    <h3 style="font-size: 1.35rem; color: var(--navy-950); margin-bottom: 0.75rem;">2. Irreversibility of Ballots</h3>
+    <p style="margin-bottom: 1.25rem;">
+      Once a voter submits and confirms their ballot selection, the vote is immediately anonymized and sealed into the election vault. Ballots cannot be modified, withdrawn, or re-voted.
+    </p>
+
+    <h3 style="font-size: 1.35rem; color: var(--navy-950); margin-bottom: 0.75rem;">3. Candidate Conduct & Fair Presentation</h3>
+    <p style="margin-bottom: 1.25rem;">
+      Candidates in simulated elections are displayed in neutral ballot order. The platform does not endorse, rank, or weight any candidate over another.
+    </p>
+
+    <h3 style="font-size: 1.35rem; color: var(--navy-950); margin-bottom: 0.75rem;">4. Demonstration Platform Status</h3>
+    <p>
+      BallotBridge is a simulated portfolio system. It is not licensed for binding governmental, statutory, or legally binding parliamentary elections.
+    </p>
+  </div>
+</div>
+{% endblock %}

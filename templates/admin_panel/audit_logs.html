@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}System Audit Logs — BallotBridge{% endblock %}
+
+{% block content %}
+<div class="container container-wide" style="padding: 2.5rem 1rem;">
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
+    <div>
+      <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary btn-sm" style="margin-bottom: 0.75rem;">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span>Back to Admin Portal</span>
+      </a>
+      <h1 style="font-size: 2.25rem; color: var(--navy-950);">Electoral System Audit Ledger</h1>
+      <p style="color: var(--slate-500); font-size: 0.95rem;">
+        Tamper-evident system log tracking administrative interventions, security alerts, and anonymous ballot submissions.
+      </p>
+    </div>
+
+    <!-- Filter Form -->
+    <form method="GET" action="{% url 'admin_audit_logs' %}" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+      <div style="position: relative;">
+        <input type="text" name="q" value="{{ search_query }}" placeholder="Search actions or details..." class="form-input" style="padding-left: 2.25rem; font-size: 0.85rem; width: 220px;">
+        <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); color: var(--slate-400); font-size: 0.85rem;"></i>
+      </div>
+      <select name="severity" class="form-select" style="font-size: 0.85rem; width: 140px;" onchange="this.form.submit()">
+        <option value="ALL" {% if selected_severity == 'ALL' %}selected{% endif %}>All Severities</option>
+        {% for s_val, s_label in severities %}
+          <option value="{{ s_val }}" {% if selected_severity == s_val %}selected{% endif %}>{{ s_label }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn btn-navy btn-sm">Filter</button>
+      {% if search_query or selected_severity != 'ALL' %}
+        <a href="{% url 'admin_audit_logs' %}" class="btn btn-secondary btn-sm">Clear</a>
+      {% endif %}
+    </form>
+  </div>
+
+  <div style="background: var(--navy-900); color: var(--white); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 2rem; font-size: 0.85rem; display: flex; gap: 1rem; align-items: flex-start;">
+    <i class="fa-solid fa-shield-halved" style="color: var(--teal-400); font-size: 1.25rem; margin-top: 0.15rem;"></i>
+    <div>
+      <strong style="color: var(--teal-400); display: block; margin-bottom: 0.25rem;">Cryptographic Secrecy Architecture Compliance</strong>
+      To uphold secret ballot principles, this audit ledger records cryptographic verification tokens, IP hashes, and timestamped participation events. Under no circumstance does this log or any database schema associate an authenticated voter's identity with their candidate choice.
+    </div>
+  </div>
+
+  <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-xl); box-shadow: var(--shadow-sm); overflow: hidden;">
+    <div style="padding: 1.25rem 1.75rem; border-bottom: 1px solid var(--slate-200); background: var(--slate-50); display: flex; justify-content: space-between; align-items: center;">
+      <h3 style="font-size: 1.15rem; color: var(--navy-900);">Audit Event Records ({{ audit_logs.count }})</h3>
+      <span style="font-size: 0.8rem; color: var(--slate-500); font-family: var(--font-mono);">Read-Only Immutable Log</span>
+    </div>
+
+    <div style="overflow-x: auto;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Timestamp (UTC)</th>
+            <th>Severity</th>
+            <th>Event Action</th>
+            <th>Account / Initiator</th>
+            <th>Client IP</th>
+            <th>Event Log Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in audit_logs %}
+          <tr>
+            <td style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--slate-600); white-space: nowrap;">
+              {{ log.timestamp|date:"Y-m-d H:i:s" }}
+            </td>
+            <td>
+              {% if log.severity == 'SECURITY' %}
+                <span class="badge" style="background: var(--rose-50); color: var(--rose-600); border: 1px solid var(--rose-500);">
+                  <i class="fa-solid fa-shield-virus"></i> Security
+                </span>
+              {% elif log.severity == 'WARNING' %}
+                <span class="badge badge-draft">
+                  <i class="fa-solid fa-triangle-exclamation"></i> Warning
+                </span>
+              {% else %}
+                <span class="badge badge-scheduled">
+                  <i class="fa-solid fa-circle-info"></i> Info
+                </span>
+              {% endif %}
+            </td>
+            <td style="font-weight: 700; color: var(--navy-900); font-size: 0.875rem;">
+              {{ log.action }}
+            </td>
+            <td style="font-size: 0.85rem; color: var(--navy-700);">
+              {{ log.user.username|default:"System Engine" }}
+            </td>
+            <td style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--slate-500);">
+              {{ log.ip_address|default:"127.0.0.1" }}
+            </td>
+            <td style="font-size: 0.85rem; color: var(--navy-800); line-height: 1.4;">
+              {{ log.details }}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" style="text-align: center; padding: 3rem; color: var(--slate-500);">
+              No audit logs match your filter criteria.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

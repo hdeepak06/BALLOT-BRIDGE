@@ -1,0 +1,83 @@
+{% load static %}
+<header class="site-header">
+  <div class="container navbar">
+    <!-- Brand Logo -->
+    <a href="{% url 'home' %}" class="brand-link" title="BallotBridge Home">
+      <img src="{% static 'img/logo.svg' %}" alt="BallotBridge Logo" class="brand-logo-img">
+    </a>
+
+    <!-- Desktop Navigation Links -->
+    <ul class="nav-links">
+      <li><a href="{% url 'home' %}" class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">Home</a></li>
+      <li><a href="{% url 'voter_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'voter_dashboard' %}active{% endif %}">Elections</a></li>
+      <li><a href="{% url 'about' %}" class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}">How It Works</a></li>
+      <li><a href="{% url 'security_disclaimer' %}" class="nav-link {% if request.resolver_match.url_name == 'security_disclaimer' %}active{% endif %}">Security Specs</a></li>
+    </ul>
+
+    <!-- Authentication / User Actions -->
+    <div class="nav-auth-actions">
+      {% if user.is_authenticated %}
+        {% if IS_ADMIN_USER %}
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-navy btn-sm" title="Election Administrator Portal">
+          <i class="fa-solid fa-shield-halved" style="color: var(--teal-400);"></i>
+          <span>Admin Portal</span>
+        </a>
+        {% endif %}
+
+        <a href="{% url 'profile' %}" class="nav-profile-pill" title="View Voter Profile">
+          <div class="avatar-bubble" style="background: {{ CURRENT_USER_PROFILE.avatar_color|default:'#0d9488' }};">
+            {{ user.first_name|default:user.username|slice:":1"|upper }}
+          </div>
+          <div style="display: flex; flex-direction: column; text-align: left; line-height: 1.15;">
+            <span style="font-weight: 700; font-size: 0.85rem; color: var(--navy-900);">
+              {{ user.first_name|default:user.username }}
+            </span>
+            <span class="voter-id-tag">
+              {{ CURRENT_USER_PROFILE.voter_id|default:'VOTER' }}
+            </span>
+          </div>
+        </a>
+
+        <a href="{% url 'logout' %}" class="btn btn-secondary btn-sm" title="Sign Out">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          <span>Sign Out</span>
+        </a>
+
+      {% else %}
+        <a href="{% url 'login' %}" class="btn btn-secondary btn-sm">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i>
+          <span>Sign In</span>
+        </a>
+        <a href="{% url 'register' %}" class="btn btn-primary btn-sm">
+          <i class="fa-solid fa-user-plus"></i>
+          <span>Register</span>
+        </a>
+      {% endif %}
+
+      <!-- Mobile Hamburger Button -->
+      <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Toggle Navigation">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Offcanvas / Dropdown Menu -->
+  <div id="mobileNavMenu" style="display: none; background: #ffffff; border-top: 1px solid var(--slate-200); padding: 1.25rem 1.5rem;">
+    <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.85rem;">
+      <li><a href="{% url 'home' %}" class="nav-link">Home</a></li>
+      <li><a href="{% url 'voter_dashboard' %}" class="nav-link">Explore Elections</a></li>
+      <li><a href="{% url 'about' %}" class="nav-link">How It Works</a></li>
+      <li><a href="{% url 'security_disclaimer' %}" class="nav-link">Security Specs</a></li>
+      {% if user.is_authenticated %}
+        <li><a href="{% url 'profile' %}" class="nav-link">My Profile & Receipts</a></li>
+        {% if IS_ADMIN_USER %}
+        <li><a href="{% url 'admin_dashboard' %}" class="nav-link" style="color: var(--teal-600); font-weight: 700;">Admin Management Portal</a></li>
+        {% endif %}
+        <li><a href="{% url 'logout' %}" class="nav-link" style="color: var(--rose-600);">Sign Out</a></li>
+      {% else %}
+        <li><a href="{% url 'login' %}" class="btn btn-secondary" style="width: 100%;">Sign In</a></li>
+        <li><a href="{% url 'register' %}" class="btn btn-primary" style="width: 100%;">Create Voter Account</a></li>
+      {% endif %}
+    </ul>
+  </div>
+</header>

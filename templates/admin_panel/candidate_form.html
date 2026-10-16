@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if is_edit %}Edit Candidate — {{ candidate.name }}{% else %}Add Candidate{% endif %} — BallotBridge{% endblock %}
+
+{% block content %}
+<div class="container container-narrow" style="padding: 2.5rem 1rem;">
+  <div style="margin-bottom: 2rem;">
+    <a href="{% url 'admin_election_edit' slug=election.slug %}" class="btn btn-secondary btn-sm" style="margin-bottom: 0.75rem;">
+      <i class="fa-solid fa-arrow-left"></i>
+      <span>Back to {{ election.title }}</span>
+    </a>
+    <h1 style="font-size: 2.1rem; color: var(--navy-950);">
+      {% if is_edit %}Edit Candidate: {{ candidate.name }}{% else %}Register Candidate for {{ election.title }}{% endif %}
+    </h1>
+    <p style="color: var(--slate-500); font-size: 0.95rem;">
+      Candidate credentials and manifestos will be displayed in impartial voter comparison views.
+    </p>
+  </div>
+
+  <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-xl); padding: 2.5rem; box-shadow: var(--shadow-sm);">
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      {% if form.errors %}
+      <div class="alert alert-danger">
+        {% for field, errors in form.errors.items %}
+          {% for error in errors %}
+            <p><strong>{{ field|title }}:</strong> {{ error }}</p>
+          {% endfor %}
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="id_name">Candidate Full Name *</label>
+          {{ form.name }}
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="id_ballot_number">Ballot Number *</label>
+          {{ form.ballot_number }}
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="id_party_or_slate">Party or Coalition Slate</label>
+          {{ form.party_or_slate }}
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="id_role_title">Office Running For</label>
+          {{ form.role_title }}
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="id_email">Official Campaign Email</label>
+          {{ form.email }}
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="id_avatar_color">Card Accent Color</label>
+          {{ form.avatar_color }}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="id_short_bio">Short Professional Biography *</label>
+        {{ form.short_bio }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="id_qualifications">Qualifications & Experience *</label>
+        {{ form.qualifications }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="id_key_proposals">Key Policy Proposals (one per line) *</label>
+        {{ form.key_proposals }}
+        <span class="form-hint">Enter individual proposals on separate lines.</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="id_manifesto">Full Campaign Manifesto *</label>
+        {{ form.manifesto }}
+      </div>
+
+      <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+        <a href="{% url 'admin_election_edit' slug=election.slug %}" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary">
+          <i class="fa-solid fa-floppy-disk"></i>
+          <span>Save Candidate Profile</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

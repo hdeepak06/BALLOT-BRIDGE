@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Administrator Portal — BallotBridge{% endblock %}
+
+{% block content %}
+<div class="container container-wide" style="padding: 2.5rem 1rem;">
+  <!-- Admin Portal Header -->
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+        <span class="badge badge-published">
+          <i class="fa-solid fa-shield-halved"></i> Election Commission Portal
+        </span>
+        <span class="simulation-tag">ADMIN PRIVILEGES</span>
+      </div>
+      <h1 style="font-size: 2.25rem; color: var(--navy-950);">Election Management & Governance</h1>
+      <p style="color: var(--slate-500); font-size: 0.95rem;">
+        Oversee simulated election lifecycles, configure voter eligibility parameters, and certify ballot tallies.
+      </p>
+    </div>
+
+    <div style="display: flex; gap: 0.75rem;">
+      <a href="{% url 'admin_audit_logs' %}" class="btn btn-secondary">
+        <i class="fa-solid fa-list-check"></i>
+        <span>Audit Logs</span>
+      </a>
+      <a href="{% url 'admin_election_create' %}" class="btn btn-primary">
+        <i class="fa-solid fa-plus"></i>
+        <span>Create New Election</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Key Metrics Grid -->
+  <div class="results-metrics-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 2.5rem;">
+    <div class="metric-card">
+      <div class="metric-card-label">Total Elections</div>
+      <div class="metric-card-val" style="color: var(--navy-900);">{{ elections.count }}</div>
+      <span style="font-size: 0.8rem; color: var(--slate-500);">Across all lifecycles</span>
+    </div>
+    <div class="metric-card">
+      <div class="metric-card-label">Active Voting Windows</div>
+      <div class="metric-card-val" style="color: var(--emerald-600);">{{ active_elections }}</div>
+      <span style="font-size: 0.8rem; color: var(--slate-500);">Open for verified ballots</span>
+    </div>
+    <div class="metric-card">
+      <div class="metric-card-label">Total Ballots Cast</div>
+      <div class="metric-card-val" style="color: var(--teal-600);">{{ total_ballots }}</div>
+      <span style="font-size: 0.8rem; color: var(--slate-500);">Anonymous database records</span>
+    </div>
+    <div class="metric-card">
+      <div class="metric-card-label">Registered Voters</div>
+      <div class="metric-card-val" style="color: var(--blue-600);">{{ total_voters }}</div>
+      <span style="font-size: 0.8rem; color: var(--slate-500);">Verified citizen profiles</span>
+    </div>
+  </div>
+
+  <!-- Elections Management Table -->
+  <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-xl); box-shadow: var(--shadow-sm); overflow: hidden; margin-bottom: 2.5rem;">
+    <div style="padding: 1.25rem 1.75rem; border-bottom: 1px solid var(--slate-200); display: flex; justify-content: space-between; align-items: center; background: var(--slate-50);">
+      <h3 style="font-size: 1.25rem; color: var(--navy-900);">Simulated Elections Master Roster</h3>
+      <span style="font-size: 0.85rem; color: var(--slate-500);">
+        Lifecycle: Draft &rarr; Scheduled &rarr; Active &rarr; Closed &rarr; Results Published
+      </span>
+    </div>
+
+    <div style="overflow-x: auto;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Election Title & Category</th>
+            <th>Lifecycle Status</th>
+            <th>Voting Schedule</th>
+            <th>Candidates</th>
+            <th>Ballots Cast</th>
+            <th>Quick Status Transition</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for el in elections %}
+          <tr>
+            <td>
+              <strong style="color: var(--navy-900); font-size: 1rem; display: block;">{{ el.title }}</strong>
+              <span style="font-size: 0.8rem; color: var(--slate-500);">{{ el.get_category_display }} · {{ el.get_eligibility_criteria_display }}</span>
+            </td>
+            <td>
+              {% if el.status == 'ACTIVE' %}
+                <span class="badge badge-active"><span class="badge-pulse-dot"></span> Active</span>
+              {% elif el.status == 'SCHEDULED' %}
+                <span class="badge badge-scheduled">Scheduled</span>
+              {% elif el.status == 'CLOSED' %}
+                <span class="badge badge-closed">Closed</span>
+              {% elif el.status == 'RESULTS_PUBLISHED' %}
+                <span class="badge badge-published">Published</span>
+              {% else %}
+                <span class="badge badge-draft">Draft</span>
+              {% endif %}
+            </td>
+            <td style="font-size: 0.825rem; color: var(--slate-600);">
+              <div><i class="fa-regular fa-calendar-check" style="color: var(--teal-600);"></i> {{ el.start_time|date:"M d, Y · H:i" }}</div>
+              <div><i class="fa-regular fa-calendar-xmark" style="color: var(--rose-600);"></i> {{ el.end_time|date:"M d, Y · H:i" }}</div>
+            </td>
+            <td>
+              <span style="font-weight: 700; color: var(--navy-800);">{{ el.candidates.count }}</span>
+              <a href="{% url 'admin_candidate_create' slug=el.slug %}" style="font-size: 0.75rem; color: var(--teal-600); display: block; margin-top: 0.15rem;">
+                + Add Candidate
+              </a>
+            </td>
+            <td>
+              <span style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; color: var(--teal-600);">
+                {{ el.total_votes_cast }}
+              </span>
+              <span style="font-size: 0.75rem; color: var(--slate-500); display: block;">({{ el.turnout_percentage }}% turnout)</span>
+            </td>
+            <td>
+              <!-- Quick State Changer Form -->
+              <form method="POST" action="{% url 'admin_status_change' slug=el.slug %}" style="display: flex; gap: 0.35rem;">
+                {% csrf_token %}
+                <select name="status" class="form-select" style="font-size: 0.75rem; padding: 0.3rem 0.5rem; width: 140px;">
+                  {% for s_val, s_label in status_choices %}
+                    <option value="{{ s_val }}" {% if el.status == s_val %}selected{% endif %}>{{ s_label }}</option>
+                  {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-navy btn-sm" style="padding: 0.3rem 0.6rem; font-size: 0.75rem;" title="Update Status">
+                  Set
+                </button>
+              </form>
+            </td>
+            <td style="white-space: nowrap;">
+              <a href="{% url 'admin_election_edit' slug=el.slug %}" class="btn btn-secondary btn-sm" title="Edit Election & Candidates">
+                <i class="fa-solid fa-pen-to-square"></i>
+                <span>Edit</span>
+              </a>
+
+              {% if el.status == 'CLOSED' %}
+                <form method="POST" action="{% url 'admin_publish_results' slug=el.slug %}" style="display: inline-block; margin-left: 0.35rem;">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Certify and publish official election results?');">
+                    <i class="fa-solid fa-certificate"></i>
+                    <span>Publish Results</span>
+                  </button>
+                </form>
+              {% elif el.status == 'RESULTS_PUBLISHED' %}
+                <a href="{% url 'results' slug=el.slug %}" class="btn btn-outline-teal btn-sm" style="margin-left: 0.35rem;">
+                  <i class="fa-solid fa-chart-simple"></i>
+                  <span>Results</span>
+                </a>
+              {% else %}
+                <a href="{% url 'election_detail' slug=el.slug %}" class="btn btn-secondary btn-sm" style="margin-left: 0.35rem;" title="Preview Voter View">
+                  <i class="fa-solid fa-eye"></i>
+                </a>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 3rem; color: var(--slate-500);">
+              No elections created yet. Click "Create New Election" above.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Recent Audit Logs Strip -->
+  <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-xl); padding: 1.75rem; box-shadow: var(--shadow-sm);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+      <h3 style="font-size: 1.15rem; color: var(--navy-900);">
+        <i class="fa-solid fa-shield-halved" style="color: var(--teal-600); margin-right: 0.4rem;"></i>
+        Recent Governance & Security Audit Events
+      </h3>
+      <a href="{% url 'admin_audit_logs' %}" style="font-size: 0.85rem; font-weight: 700; color: var(--teal-600);">
+        View All Logs &rarr;
+      </a>
+    </div>
+
+    <div style="overflow-x: auto;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Timestamp (UTC)</th>
+            <th>Severity</th>
+            <th>Action</th>
+            <th>Initiator</th>
+            <th>Security Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for audit in recent_audits %}
+          <tr>
+            <td style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--slate-600); white-space: nowrap;">
+              {{ audit.timestamp|date:"Y-m-d H:i:s" }}
+            </td>
+            <td>
+              {% if audit.severity == 'SECURITY' %}
+                <span class="badge badge-active" style="background: var(--rose-50); color: var(--rose-600); border-color: var(--rose-500);">Security</span>
+              {% elif audit.severity == 'WARNING' %}
+                <span class="badge badge-draft">Warning</span>
+              {% else %}
+                <span class="badge badge-scheduled">Info</span>
+              {% endif %}
+            </td>
+            <td style="font-weight: 700; color: var(--navy-900); font-size: 0.85rem;">
+              {{ audit.action }}
+            </td>
+            <td style="font-size: 0.85rem; color: var(--slate-600);">
+              {{ audit.user.username|default:"System Engine" }}
+            </td>
+            <td style="font-size: 0.825rem; color: var(--navy-700);">
+              {{ audit.details }}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" style="text-align: center; color: var(--slate-500); padding: 1.5rem;">
+              No audit records logged yet.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

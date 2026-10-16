@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ election.title }} — BallotBridge{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 2.5rem 1rem;">
+  <!-- Election Overview Header Banner -->
+  <div style="background: linear-gradient(135deg, var(--navy-950), var(--navy-850)); color: var(--white); border-radius: var(--radius-xl); padding: 2.5rem; margin-bottom: 2.5rem; box-shadow: var(--shadow-lg); position: relative; overflow: hidden;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <span class="election-category-tag" style="background: rgba(255,255,255,0.15); color: #ffffff;">
+          {{ election.get_category_display }}
+        </span>
+        {% if election.status == 'ACTIVE' %}
+          <span class="badge badge-active" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border-color: #059669;">
+            <span class="badge-pulse-dot"></span> Voting Open
+          </span>
+        {% elif election.status == 'SCHEDULED' %}
+          <span class="badge badge-scheduled" style="background: rgba(14, 165, 233, 0.2); color: #38bdf8;">
+            <i class="fa-regular fa-clock"></i> Scheduled
+          </span>
+        {% elif election.status == 'RESULTS_PUBLISHED' %}
+          <span class="badge badge-published" style="background: rgba(99, 102, 241, 0.2); color: #a5b4fc;">
+            <i class="fa-solid fa-certificate"></i> Results Certified
+          </span>
+        {% else %}
+          <span class="badge badge-closed">
+            <i class="fa-solid fa-lock"></i> Closed
+          </span>
+        {% endif %}
+      </div>
+
+      <div style="display: flex; gap: 0.75rem;">
+        <a href="{% url 'candidate_compare' slug=election.slug %}" class="btn btn-secondary btn-sm" style="background: rgba(255,255,255,0.1); color: #ffffff; border-color: rgba(255,255,255,0.2);">
+          <i class="fa-solid fa-code-compare"></i>
+          <span>Compare Candidates</span>
+        </a>
+        {% if election.status == 'RESULTS_PUBLISHED' %}
+        <a href="{% url 'results' slug=election.slug %}" class="btn btn-primary btn-sm">
+          <i class="fa-solid fa-chart-simple"></i>
+          <span>View Results</span>
+        </a>
+        {% endif %}
+      </div>
+    </div>
+
+    <h1 style="font-size: 2.35rem; color: #ffffff; margin-bottom: 0.75rem; line-height: 1.2;">
+      {{ election.title }}
+    </h1>
+    <p style="font-size: 1.1rem; color: var(--slate-300); max-width: 820px; margin-bottom: 1.75rem; line-height: 1.6;">
+      {{ election.description }}
+    </p>
+
+    <!-- Metadata Grid in Header -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 1.5rem;">
+      <div>
+        <span style="font-size: 0.75rem; color: var(--slate-400); text-transform: uppercase; display: block;">Voting Window</span>
+        <strong style="color: #ffffff; font-size: 0.95rem;">
+          {{ election.start_time|date:"M d, H:i" }} — {{ election.end_time|date:"M d, Y · H:i" }} UTC
+        </strong>
+      </div>
+      <div>
+        <span style="font-size: 0.75rem; color: var(--slate-400); text-transform: uppercase; display: block;">Eligibility Criteria</span>
+        <strong style="color: var(--teal-400); font-size: 0.95rem;">
+          {{ election.get_eligibility_criteria_display }}
+        </strong>
+      </div>
+      <div>
+        <span style="font-size: 0.75rem; color: var(--slate-400); text-transform: uppercase; display: block;">Simulated Turnout</span>
+        <strong style="color: #ffffff; font-size: 0.95rem;">
+          {{ election.turnout_percentage }}% ({{ election.total_votes_cast }} Ballots)
+        </strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- Voter Status Notification Action Box -->
+  <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: 1.5rem 2rem; margin-bottom: 2.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.25rem; box-shadow: var(--shadow-sm);">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      {% if has_voted %}
+        <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--emerald-50); color: var(--emerald-600); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+          <i class="fa-solid fa-check-double"></i>
+        </div>
+        <div>
+          <h4 style="font-size: 1.1rem; color: var(--navy-900); margin-bottom: 0.2rem;">Confidential Ballot Recorded</h4>
+          <p style="font-size: 0.875rem; color: var(--slate-500);">
+            Your participation is certified. Verifiable Receipt Token: 
+            <code style="font-family: var(--font-mono); color: var(--teal-600); font-weight: 700;">{{ receipt_token|slice:":18" }}...</code>
+          </p>
+        </div>
+      {% elif can_vote %}
+        <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--teal-50); color: var(--teal-600); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+          <i class="fa-solid fa-check-to-slot"></i>
+        </div>
+        <div>
+          <h4 style="font-size: 1.1rem; color: var(--navy-900); margin-bottom: 0.2rem;">You are Eligible to Vote</h4>
+          <p style="font-size: 0.875rem; color: var(--slate-500);">
+            Voting is active. Review the registered candidates below and cast your confidential ballot.
+          </p>
+        </div>
+      {% elif not user.is_authenticated %}
+        <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--blue-100); color: var(--blue-600); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+          <i class="fa-solid fa-user-lock"></i>
+        </div>
+        <div>
+          <h4 style="font-size: 1.1rem; color: var(--navy-900); margin-bottom: 0.2rem;">Authentication Required</h4>
+          <p style="font-size: 0.875rem; color: var(--slate-500);">
+            Sign in with your verified voter credentials to cast a ballot in this simulated election.
+          </p>
+        </div>
+      {% else %}
+        <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--amber-50); color: var(--amber-600); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+          <i class="fa-solid fa-circle-info"></i>
+        </div>
+        <div>
+          <h4 style="font-size: 1.1rem; color: var(--navy-900); margin-bottom: 0.2rem;">Voting Unavailable</h4>
+          <p style="font-size: 0.875rem; color: var(--slate-500);">
+            {{ eligibility_reason }}
+          </p>
+        </div>
+      {% endif %}
+    </div>
+
+    <div>
+      {% if has_voted %}
+        <a href="{% url 'vote_receipt' slug=election.slug receipt=receipt_token %}" class="btn btn-secondary">
+          <i class="fa-solid fa-receipt"></i>
+          <span>View My Ballot Receipt</span>
+        </a>
+      {% elif can_vote %}
+        <a href="{% url 'vote_select' slug=election.slug %}" class="btn btn-primary btn-lg">
+          <i class="fa-solid fa-box-archive"></i>
+          <span>Proceed to Cast Ballot</span>
+        </a>
+      {% elif not user.is_authenticated %}
+        <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary">
+          <i class="fa-solid fa-right-to-bracket"></i>
+          <span>Sign In to Vote</span>
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Candidate Profiles Section -->
+  <div style="margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <div>
+        <h2 style="font-size: 1.75rem; color: var(--navy-950);">Official Candidates ({{ candidates.count }})</h2>
+        <p style="color: var(--slate-500); font-size: 0.925rem;">
+          Candidates are listed in ballot order without preferential ranking.
+        </p>
+      </div>
+      <a href="{% url 'candidate_compare' slug=election.slug %}" class="btn btn-secondary btn-sm">
+        <i class="fa-solid fa-table-columns"></i>
+        <span>Side-by-Side Comparison</span>
+      </a>
+    </div>
+
+    <div class="candidates-grid">
+      {% for cand in candidates %}
+      <div class="candidate-card" style="cursor: default;">
+        <span class="ballot-number-pill" title="Ballot Position #{{ cand.ballot_number }}">
+          #{{ cand.ballot_number }}
+        </span>
+
+        <div class="candidate-header">
+          <div class="candidate-avatar" style="background: {{ cand.avatar_color|default:'#0284c7' }};">
+            {{ cand.avatar_initials|default:cand.name|slice:":2"|upper }}
+          </div>
+          <div class="candidate-info">
+            <h3>{{ cand.name }}</h3>
+            <span class="candidate-party-badge">{{ cand.party_or_slate|default:"Independent" }}</span>
+            <span style="display: block; font-size: 0.8rem; color: var(--slate-500); margin-top: 0.15rem;">
+              {{ cand.role_title|default:"Candidate" }}
+            </span>
+          </div>
+        </div>
+
+        <p class="candidate-bio">
+          {{ cand.short_bio }}
+        </p>
+
+        <!-- Qualifications -->
+        <div style="margin-bottom: 1rem; font-size: 0.85rem;">
+          <strong style="color: var(--navy-800); display: block; margin-bottom: 0.35rem;">
+            <i class="fa-solid fa-graduation-cap" style="color: var(--teal-600); margin-right: 0.35rem;"></i>
+            Qualifications & Experience:
+          </strong>
+          <p style="color: var(--navy-600); line-height: 1.4;">{{ cand.qualifications }}</p>
+        </div>
+
+        <!-- Proposals List -->
+        <div class="candidate-proposals-box">
+          <h4>Key Platform Proposals</h4>
+          <ul class="candidate-proposals-list">
+            {% for proposal in cand.get_proposals_list %}
+            <li>
+              <i class="fa-solid fa-circle-check"></i>
+              <span>{{ proposal }}</span>
+            </li>
+            {% empty %}
+            <li><i class="fa-solid fa-circle-check"></i> Standard community development agenda</li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <!-- Manifesto Details Accordion/Toggle -->
+        <details style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--slate-200); font-size: 0.85rem;">
+          <summary style="font-weight: 700; color: var(--teal-600); cursor: pointer; outline: none;">
+            Read Full Campaign Manifesto
+          </summary>
+          <div style="background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius-md); padding: 1rem; margin-top: 0.75rem; color: var(--navy-700); line-height: 1.6; white-space: pre-line;">
+            {{ cand.manifesto }}
+          </div>
+        </details>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Bottom Action Bar if eligible -->
+  {% if can_vote %}
+  <div style="text-align: center; margin: 3rem 0; padding: 2.5rem; background: var(--white); border-radius: var(--radius-xl); border: 1px solid var(--slate-200); box-shadow: var(--shadow-md);">
+    <h3 style="font-size: 1.5rem; color: var(--navy-950); margin-bottom: 0.5rem;">Have you reviewed all candidates?</h3>
+    <p style="color: var(--slate-500); margin-bottom: 1.5rem; max-width: 500px; margin-left: auto; margin-right: auto;">
+      Proceed to make your confidential selection. Once submitted, your ballot is permanent and irreversible.
+    </p>
+    <a href="{% url 'vote_select' slug=election.slug %}" class="btn btn-primary btn-lg">
+      <i class="fa-solid fa-check-to-slot"></i>
+      <span>Open Confidential Ballot</span>
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

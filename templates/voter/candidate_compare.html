@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Compare Candidates — {{ election.title }}{% endblock %}
+
+{% block content %}
+<div class="container container-wide" style="padding: 2.5rem 1rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <a href="{% url 'election_detail' slug=election.slug %}" class="btn btn-secondary btn-sm" style="margin-bottom: 0.75rem;">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span>Back to Election Details</span>
+      </a>
+      <h1 style="font-size: 2.1rem; color: var(--navy-950);">Candidate Platform Comparison</h1>
+      <p style="color: var(--slate-500); font-size: 0.95rem;">
+        Impartial, side-by-side overview for <strong>{{ election.title }}</strong>. Candidates are presented without editorial ranking.
+      </p>
+    </div>
+
+    {% if election.is_voting_open and not election.has_user_voted %}
+    <a href="{% url 'vote_select' slug=election.slug %}" class="btn btn-primary">
+      <i class="fa-solid fa-check-to-slot"></i>
+      <span>Proceed to Vote</span>
+    </a>
+    {% endif %}
+  </div>
+
+  <div style="overflow-x: auto; padding-bottom: 1.5rem;">
+    <div style="display: grid; grid-template-columns: repeat({{ candidates.count }}, minmax(320px, 1fr)); gap: 1.5rem; min-width: {% if candidates.count > 2 %}960px{% else %}650px{% endif %};">
+      {% for cand in candidates %}
+      <div style="background: var(--white); border: 2px solid var(--slate-200); border-radius: var(--radius-xl); padding: 1.75rem; box-shadow: var(--shadow-sm); display: flex; flex-direction: column;">
+        <!-- Header -->
+        <div style="text-align: center; padding-bottom: 1.25rem; border-bottom: 1px solid var(--slate-200); margin-bottom: 1.25rem;">
+          <div class="candidate-avatar" style="width: 72px; height: 72px; font-size: 1.75rem; margin: 0 auto 0.85rem; background: {{ cand.avatar_color|default:'#0284c7' }};">
+            {{ cand.avatar_initials|default:cand.name|slice:":2"|upper }}
+          </div>
+          <span style="font-size: 0.75rem; font-weight: 700; color: var(--slate-500); text-transform: uppercase;">
+            Ballot Position #{{ cand.ballot_number }}
+          </span>
+          <h3 style="font-size: 1.35rem; color: var(--navy-950); margin: 0.2rem 0;">{{ cand.name }}</h3>
+          <span class="candidate-party-badge">{{ cand.party_or_slate|default:"Independent" }}</span>
+          <span style="display: block; font-size: 0.825rem; color: var(--slate-600); margin-top: 0.25rem;">
+            {{ cand.role_title }}
+          </span>
+        </div>
+
+        <!-- Section: Background & Bio -->
+        <div style="margin-bottom: 1.5rem;">
+          <h4 style="font-size: 0.85rem; text-transform: uppercase; color: var(--navy-700); letter-spacing: 0.05em; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
+            <i class="fa-solid fa-user" style="color: var(--teal-600);"></i>
+            Biography & Values
+          </h4>
+          <p style="font-size: 0.875rem; color: var(--navy-600); line-height: 1.5;">
+            {{ cand.short_bio }}
+          </p>
+        </div>
+
+        <!-- Section: Qualifications -->
+        <div style="margin-bottom: 1.5rem;">
+          <h4 style="font-size: 0.85rem; text-transform: uppercase; color: var(--navy-700); letter-spacing: 0.05em; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
+            <i class="fa-solid fa-graduation-cap" style="color: var(--teal-600);"></i>
+            Credentials & Experience
+          </h4>
+          <p style="font-size: 0.875rem; color: var(--navy-600); line-height: 1.5;">
+            {{ cand.qualifications }}
+          </p>
+        </div>
+
+        <!-- Section: Key Proposals -->
+        <div style="margin-bottom: 1.5rem; flex-grow: 1;">
+          <h4 style="font-size: 0.85rem; text-transform: uppercase; color: var(--navy-700); letter-spacing: 0.05em; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
+            <i class="fa-solid fa-list-check" style="color: var(--teal-600);"></i>
+            Priority Proposals
+          </h4>
+          <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem; color: var(--navy-700);">
+            {% for proposal in cand.get_proposals_list %}
+            <li style="display: flex; gap: 0.45rem; align-items: flex-start;">
+              <i class="fa-solid fa-check" style="color: var(--teal-600); margin-top: 0.2rem;"></i>
+              <span>{{ proposal }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <!-- Section: Full Manifesto Box -->
+        <div style="background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius-md); padding: 1rem; margin-top: auto;">
+          <h4 style="font-size: 0.8rem; text-transform: uppercase; color: var(--slate-500); letter-spacing: 0.05em; margin-bottom: 0.35rem;">
+            Official Manifesto Extract
+          </h4>
+          <p style="font-size: 0.825rem; color: var(--navy-600); line-height: 1.5; max-height: 140px; overflow-y: auto;">
+            {{ cand.manifesto }}
+          </p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

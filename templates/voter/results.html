@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Official Certified Results — {{ election.title }}{% endblock %}
+
+{% block extra_head %}
+<!-- Chart.js 4 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 2.5rem 1rem;">
+  <!-- Results Header -->
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+        <span class="badge badge-published">
+          <i class="fa-solid fa-certificate"></i> Certified Official Outcome
+        </span>
+        <span class="election-category-tag">{{ election.get_category_display }}</span>
+        <span class="simulation-tag">DEMO RESULTS</span>
+      </div>
+      <h1 style="font-size: 2.35rem; color: var(--navy-950); margin-bottom: 0.35rem;">
+        Election Results: {{ election.title }}
+      </h1>
+      <p style="color: var(--slate-500); font-size: 0.95rem;">
+        Results certified and published on <strong>{{ election.updated_at|date:"F d, Y · H:i:s" }} UTC</strong>.
+      </p>
+    </div>
+
+    <div>
+      <a href="{% url 'voter_dashboard' %}" class="btn btn-secondary">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span>Return to Dashboard</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Winner or Tie Banner -->
+  {% if results_data.is_tie %}
+  <div class="tie-banner">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <i class="fa-solid fa-scale-balanced" style="font-size: 2.5rem;"></i>
+      <div>
+        <h3 style="font-size: 1.35rem; font-weight: 800; margin-bottom: 0.25rem;">Electoral Tie Declared</h3>
+        <p style="font-size: 0.95rem; opacity: 0.95;">
+          Multiple candidates received the equal highest certified tally of <strong>{{ results_data.top_count }} votes</strong>. Under platform governance bylaws, runoff or secondary arbitration procedures are scheduled.
+        </p>
+      </div>
+    </div>
+  </div>
+  {% else %}
+    {% for r in results_data.results %}
+      {% if r.is_winner %}
+      <div class="winner-banner">
+        <div style="display: flex; align-items: center; gap: 1.25rem;">
+          <div style="width: 58px; height: 58px; border-radius: 50%; background: #ffffff; color: var(--emerald-600); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; box-shadow: var(--shadow-sm);">
+            <i class="fa-solid fa-trophy"></i>
+          </div>
+          <div>
+            <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; color: #a7f3d0; display: block;">
+              CERTIFIED ELECTED WINNER
+            </span>
+            <h2 style="font-size: 1.75rem; font-weight: 800; color: #ffffff; margin: 0.1rem 0;">
+              {{ r.candidate.name }}
+            </h2>
+            <span style="font-size: 0.9rem; opacity: 0.9;">
+              {{ r.candidate.party_or_slate|default:"Independent" }} · {{ r.votes }} Votes ({{ r.percentage }}% Vote Share)
+            </span>
+          </div>
+        </div>
+        <div style="text-align: right;">
+          <span style="font-size: 2rem; font-family: var(--font-heading); font-weight: 800; color: #ffffff;">
+            {{ r.percentage }}%
+          </span>
+          <span style="display: block; font-size: 0.75rem; color: #a7f3d0;">Plurality Victory</span>
+        </div>
+      </div>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+
+  <!-- Turnout & Participation Key Metric Cards -->
+  <div class="results-metrics-grid">
+    <div class="metric-card">
+      <div class="metric-card-label">Total Certified Ballots</div>
+      <div class="metric-card-val" style="color: var(--teal-600);">{{ results_data.total_votes }}</div>
+      <span style="font-size: 0.8rem; color: var(--slate-500);">100% verified encrypted ballots</span>
+    </div>
+    <div class="metric-card">
+      <div class="metric-card-label">Eligible Registered Voters</div>
+      <div class="metric-card-val" style="color: var(--navy-800);">{{ results_data.eligible_voters }}</div>
+      <span style="font-size: 0.8rem; color: var(--slate-500);">Voters meeting constituency criteria</span>
+    </div>
+    <div class="metric-card">
+      <div class="metric-card-label">Voter Turnout Rate</div>
+      <div class="metric-card-val" style="color: var(--blue-600);">{{ results_data.turnout_percentage }}%</div>
+      <div class="participation-metric-bar" style="margin-top: 0.5rem;">
+        <div class="participation-fill" style="width: {{ results_data.turnout_percentage }}%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Chart.js Visualizations Grid -->
+  <div class="charts-row">
+    <!-- Bar Chart -->
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <div>
+          <h3 style="font-size: 1.15rem; color: var(--navy-900);">Candidate Vote Comparison</h3>
+          <span style="font-size: 0.8rem; color: var(--slate-500);">Direct certified ballot counts</span>
+        </div>
+        <i class="fa-solid fa-chart-column" style="color: var(--teal-600); font-size: 1.25rem;"></i>
+      </div>
+      <div class="chart-canvas-wrap">
+        <canvas id="resultsBarChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Doughnut Chart -->
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <div>
+          <h3 style="font-size: 1.15rem; color: var(--navy-900);">Vote Share Distribution</h3>
+          <span style="font-size: 0.8rem; color: var(--slate-500);">Proportional breakdown</span>
+        </div>
+        <i class="fa-solid fa-chart-pie" style="color: var(--blue-600); font-size: 1.25rem;"></i>
+      </div>
+      <div class="chart-canvas-wrap">
+        <canvas id="resultsDoughnutChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabular Breakdown of Candidate Results -->
+  <div class="results-table-card">
+    <div style="padding: 1.25rem 1.5rem; background: var(--slate-50); border-bottom: 1px solid var(--slate-200); display: flex; justify-content: space-between; align-items: center;">
+      <h3 style="font-size: 1.15rem; color: var(--navy-900);">Detailed Official Tally</h3>
+      <span style="font-size: 0.8rem; color: var(--slate-500); font-weight: 600;">Ranked by Certified Ballot Count</span>
+    </div>
+
+    <div style="overflow-x: auto;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Candidate</th>
+            <th>Party / Affiliation</th>
+            <th>Certified Votes</th>
+            <th>Vote Share</th>
+            <th>Distribution Progress</th>
+            <th>Outcome</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in results_data.results %}
+          <tr>
+            <td style="font-weight: 700; color: var(--navy-700);">
+              #{{ forloop.counter }}
+            </td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div class="avatar-bubble" style="background: {{ r.candidate.avatar_color|default:'#0284c7' }}; width: 34px; height: 34px; font-size: 0.85rem;">
+                  {{ r.candidate.avatar_initials|default:r.candidate.name|slice:":2"|upper }}
+                </div>
+                <div>
+                  <strong style="color: var(--navy-900); display: block;">{{ r.candidate.name }}</strong>
+                  <span style="font-size: 0.75rem; color: var(--slate-500);">Ballot #{{ r.candidate.ballot_number }}</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="candidate-party-badge">{{ r.candidate.party_or_slate|default:"Independent" }}</span>
+            </td>
+            <td style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 700; color: var(--navy-900);">
+              {{ r.votes }}
+            </td>
+            <td style="font-weight: 700; color: var(--teal-600); font-size: 1rem;">
+              {{ r.percentage }}%
+            </td>
+            <td style="width: 200px;">
+              <div class="participation-metric-bar" style="height: 10px;">
+                <div class="participation-fill" style="width: {{ r.percentage }}%; background: {{ r.candidate.avatar_color|default:'#0284c7' }};"></div>
+              </div>
+            </td>
+            <td>
+              {% if r.is_winner %}
+                <span class="badge badge-active" style="background: var(--emerald-50); color: var(--emerald-600);">
+                  <i class="fa-solid fa-trophy"></i> Elected
+                </span>
+              {% elif r.is_tie %}
+                <span class="badge badge-draft" style="background: var(--amber-50); color: var(--amber-600);">
+                  <i class="fa-solid fa-equals"></i> Tie
+                </span>
+              {% else %}
+                <span class="badge badge-closed">Not Elected</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/charts.js' %}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const labels = {{ chart_labels_json|safe }};
+    const votes = {{ chart_votes_json|safe }};
+    const colors = {{ chart_colors_json|safe }};
+    initElectionCharts(labels, votes, colors);
+  });
+</script>
+{% endblock %}

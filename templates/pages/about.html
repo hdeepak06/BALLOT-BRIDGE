@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}About BallotBridge — Secure E-Voting Platform{% endblock %}
+
+{% block content %}
+<div class="container container-narrow" style="padding: 3.5rem 1rem;">
+  <div style="text-align: center; margin-bottom: 3rem;">
+    <span class="section-tag">Empowering Digital Governance</span>
+    <h1 style="font-size: 2.75rem; color: var(--navy-950); margin-bottom: 1rem;">
+      About BallotBridge
+    </h1>
+    <p style="font-size: 1.15rem; color: var(--navy-600); line-height: 1.6;">
+      "Your Voice. Your Choice. Your Future." — Engineered to provide a trustworthy, accessible, and mathematically sound simulation for organizational, student, and civic decision making.
+    </p>
+  </div>
+
+  <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-xl); padding: 2.5rem; box-shadow: var(--shadow-sm); margin-bottom: 2.5rem; line-height: 1.7; color: var(--navy-800);">
+    <h2 style="font-size: 1.65rem; color: var(--navy-950); margin-bottom: 1rem;">Our Mission & Principles</h2>
+    <p style="margin-bottom: 1.25rem;">
+      In an era where remote collaboration and participatory governance are critical, modern communities need robust tools to select leaders and resolve referendums. BallotBridge was built as a clean, reliable digital voting application demonstrating essential democratic standards:
+    </p>
+    <ul style="padding-left: 1.5rem; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+      <li><strong>Double-Blind Secrecy:</strong> Ballots are mathematically severed from voter identities. No administrator, candidate, or fellow voter can inspect your vote.</li>
+      <li><strong>Strict One-Person-One-Vote:</strong> Enforced by relational constraints and database-level transactional locks to prevent duplicate submissions and race conditions.</li>
+      <li><strong>Server-Side Validation:</strong> Client-side code and timers can be bypassed; BallotBridge enforces every authorization, eligibility requirement, and voting window on the server.</li>
+      <li><strong>Verifiable Participation:</strong> Voters receive cryptographic receipt tokens proving their participation in the turnout ledger without revealing their selection.</li>
+      <li><strong>Sealed Results:</strong> Counting tallies are strictly locked away from view until voting has concluded and election officials certify the final results.</li>
+    </ul>
+
+    <h2 style="font-size: 1.65rem; color: var(--navy-950); margin: 2rem 0 1rem;">System Architecture</h2>
+    <p style="margin-bottom: 1.25rem;">
+      BallotBridge runs on Python Django with SQLite/PostgreSQL, utilizing standard HTML5, CSS3, and modern vanilla JavaScript without heavy client frameworks. By keeping the frontend accessible and vanilla, the platform delivers fast performance, maximum security, and full accessibility across devices.
+    </p>
+    <div style="background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius-md); padding: 1.25rem; font-family: var(--font-mono); font-size: 0.85rem; color: var(--navy-900); margin-bottom: 1.5rem;">
+      [Voter Browser] &rarr; HTTPS &rarr; [Django Auth & Session Validation]<br>
+      &nbsp;&nbsp;&rarr; [Eligibility Check]<br>
+      &nbsp;&nbsp;&rarr; [Atomic Transaction: CREATE Ballot (Anonymous) + CREATE Participation (Voter ID)]<br>
+      &nbsp;&nbsp;&rarr; [Audit Logger & Receipt Token Generator] &rarr; [Certified Results Engine]
+    </div>
+
+    <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+      <a href="{% url 'voter_dashboard' %}" class="btn btn-primary">Explore Active Elections</a>
+      <a href="{% url 'security_disclaimer' %}" class="btn btn-secondary">Review Security Specifications</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

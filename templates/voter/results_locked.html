@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Results Sealed — {{ election.title }}{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 4rem 1rem;">
+  <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-xl); padding: 3rem; max-width: 620px; margin: 0 auto; text-align: center; box-shadow: var(--shadow-md);">
+    <div style="width: 72px; height: 72px; border-radius: 50%; background: var(--amber-50); color: var(--amber-600); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; margin: 0 auto 1.5rem;">
+      <i class="fa-solid fa-lock"></i>
+    </div>
+
+    <span class="badge badge-scheduled" style="margin-bottom: 0.75rem;">
+      STATUS: {{ election.get_status_display }}
+    </span>
+
+    <h1 style="font-size: 2rem; color: var(--navy-950); margin-bottom: 0.75rem;">
+      Election Results are Sealed
+    </h1>
+
+    <p style="color: var(--slate-600); font-size: 1rem; line-height: 1.6; margin-bottom: 1.75rem;">
+      To prevent early bandwagons, voter coercion, and tactical skewing, BallotBridge enforces strict cryptographic isolation. Ballots for <strong>{{ election.title }}</strong> remain sealed until the voting window has closed and election officials have completed verification and published the certified tally.
+    </p>
+
+    <div style="background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 2rem; text-align: left; font-size: 0.85rem;">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem;">
+        <span style="color: var(--slate-500);">Current Lifecycle Stage:</span>
+        <strong style="color: var(--navy-900);">{{ election.get_status_display }}</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem;">
+        <span style="color: var(--slate-500);">Scheduled End Time:</span>
+        <strong style="color: var(--navy-900);">{{ election.end_time|date:"F d, Y · H:i" }} UTC</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between;">
+        <span style="color: var(--slate-500);">Ballots Sealed in Vault:</span>
+        <strong style="color: var(--teal-600);">{{ election.total_votes_cast }} Encrypted Records</strong>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 1rem; justify-content: center;">
+      <a href="{% url 'election_detail' slug=election.slug %}" class="btn btn-secondary">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span>Election Details</span>
+      </a>
+      <a href="{% url 'voter_dashboard' %}" class="btn btn-primary">
+        <span>Voter Dashboard</span>
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

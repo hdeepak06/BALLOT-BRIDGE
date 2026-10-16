@@ -1,0 +1,373 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Voter Dashboard — BallotBridge{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+  <!-- Sidebar Navigation -->
+  <aside class="dashboard-sidebar">
+    <div class="sidebar-user-card">
+      <div class="sidebar-user-top">
+        <div class="avatar-bubble" style="background: {{ CURRENT_USER_PROFILE.avatar_color|default:'#0d9488' }};">
+          {{ user.first_name|default:user.username|slice:":1"|upper }}
+        </div>
+        <div>
+          <div class="sidebar-user-name">{{ user.get_full_name|default:user.username }}</div>
+          <div class="sidebar-user-role">{{ CURRENT_USER_PROFILE.get_role_display }}</div>
+        </div>
+      </div>
+      <div class="sidebar-voter-id">
+        <span>VOTER ID:</span>
+        <strong style="color: var(--teal-400);">{{ CURRENT_USER_PROFILE.voter_id }}</strong>
+      </div>
+    </div>
+
+    <ul class="sidebar-menu">
+      <li>
+        <a href="{% url 'voter_dashboard' %}?tab=active" class="sidebar-link {% if selected_tab == 'active' %}active{% endif %}">
+          <i class="fa-solid fa-box-archive"></i>
+          <span>Active Elections</span>
+          <span class="badge badge-active" style="margin-left: auto;">{{ total_active_count }}</span>
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'voter_dashboard' %}?tab=upcoming" class="sidebar-link {% if selected_tab == 'upcoming' %}active{% endif %}">
+          <i class="fa-regular fa-calendar"></i>
+          <span>Scheduled</span>
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'voter_dashboard' %}?tab=closed" class="sidebar-link {% if selected_tab == 'closed' %}active{% endif %}">
+          <i class="fa-solid fa-chart-simple"></i>
+          <span>Certified Results</span>
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'profile' %}" class="sidebar-link">
+          <i class="fa-solid fa-receipt"></i>
+          <span>My Ballot Receipts</span>
+          <span class="badge badge-published" style="margin-left: auto;">{{ total_voted_count }}</span>
+        </a>
+      </li>
+      {% if IS_ADMIN_USER %}
+      <li style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--slate-200);">
+        <a href="{% url 'admin_dashboard' %}" class="sidebar-link" style="color: var(--teal-600); font-weight: 700;">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span>Admin Management</span>
+        </a>
+      </li>
+      {% endif %}
+    </ul>
+
+    <div class="sidebar-footer">
+      <div style="background: var(--slate-100); border-radius: var(--radius-md); padding: 1rem; font-size: 0.8rem; color: var(--slate-600);">
+        <strong style="color: var(--navy-800); display: block; margin-bottom: 0.25rem;">
+          <i class="fa-solid fa-lock" style="color: var(--teal-600);"></i> Privacy Protocol Active
+        </strong>
+        Double-blind separation strictly severs your identity from any ballot cast.
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="dashboard-main">
+    <!-- Header Title & Search/Filters -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
+      <div>
+        <h1 style="font-size: 2rem; color: var(--navy-950); margin-bottom: 0.35rem;">Voter Portal</h1>
+        <p style="color: var(--slate-500); font-size: 0.95rem;">
+          Explore democratic proceedings, review candidates, and exercise your confidential voting rights.
+        </p>
+      </div>
+
+      <!-- Search & Category Filter Form -->
+      <form method="GET" action="{% url 'voter_dashboard' %}" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <input type="hidden" name="tab" value="{{ selected_tab }}">
+        <div style="position: relative;">
+          <input type="text" name="q" value="{{ search_query }}" placeholder="Search elections..." class="form-input" style="padding-left: 2.25rem; font-size: 0.85rem; width: 220px;">
+          <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); color: var(--slate-400); font-size: 0.85rem;"></i>
+        </div>
+        <select name="category" class="form-select" style="font-size: 0.85rem; width: 170px;" onchange="this.form.submit()">
+          <option value="ALL" {% if category_filter == 'ALL' %}selected{% endif %}>All Categories</option>
+          {% for cat_val, cat_name in categories %}
+            <option value="{{ cat_val }}" {% if category_filter == cat_val %}selected{% endif %}>{{ cat_name }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-navy btn-sm">Filter</button>
+      </form>
+    </div>
+
+    <!-- Official Announcements Bulletins if any -->
+    {% if announcements %}
+    <div style="background: linear-gradient(135deg, #f0fdfa, #e0f2fe); border: 1px solid #99f6e4; border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 2rem;">
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+        <i class="fa-solid fa-bullhorn" style="color: var(--teal-600);"></i>
+        <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--navy-900); text-transform: uppercase; letter-spacing: 0.05em;">
+          Official Election Announcements
+        </h3>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+        {% for ann in announcements %}
+        <div style="background: #ffffff; border-radius: var(--radius-md); padding: 0.85rem 1rem; border: 1px solid rgba(13, 148, 136, 0.2);">
+          <strong style="color: var(--navy-900); font-size: 0.9rem; display: block; margin-bottom: 0.25rem;">
+            {{ ann.title }}
+          </strong>
+          <p style="font-size: 0.825rem; color: var(--navy-600); line-height: 1.4;">{{ ann.message }}</p>
+          <span style="font-size: 0.72rem; color: var(--slate-400); display: block; margin-top: 0.35rem;">
+            {{ ann.created_at|date:"M d, Y · H:i" }}
+          </span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Tabs Navigation Header -->
+    <div style="display: flex; border-bottom: 2px solid var(--slate-200); margin-bottom: 2rem; gap: 1.5rem;">
+      <a href="{% url 'voter_dashboard' %}?tab=active{% if category_filter != 'ALL' %}&category={{ category_filter }}{% endif %}" 
+         style="padding: 0.75rem 0.5rem; font-weight: 700; font-size: 1rem; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; border-bottom: 3px solid {% if selected_tab == 'active' %}var(--teal-600){% else %}transparent{% endif %}; color: {% if selected_tab == 'active' %}var(--teal-600){% else %}var(--slate-500){% endif %}; margin-bottom: -2px;">
+        <i class="fa-solid fa-vote-yea"></i>
+        <span>Active Elections</span>
+        <span class="badge {% if selected_tab == 'active' %}badge-active{% else %}badge-closed{% endif %}">{{ active_elections|length }}</span>
+      </a>
+
+      <a href="{% url 'voter_dashboard' %}?tab=upcoming{% if category_filter != 'ALL' %}&category={{ category_filter }}{% endif %}" 
+         style="padding: 0.75rem 0.5rem; font-weight: 700; font-size: 1rem; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; border-bottom: 3px solid {% if selected_tab == 'upcoming' %}var(--blue-600){% else %}transparent{% endif %}; color: {% if selected_tab == 'upcoming' %}var(--blue-600){% else %}var(--slate-500){% endif %}; margin-bottom: -2px;">
+        <i class="fa-regular fa-clock"></i>
+        <span>Scheduled</span>
+        <span class="badge {% if selected_tab == 'upcoming' %}badge-scheduled{% else %}badge-closed{% endif %}">{{ upcoming_elections|length }}</span>
+      </a>
+
+      <a href="{% url 'voter_dashboard' %}?tab=closed{% if category_filter != 'ALL' %}&category={{ category_filter }}{% endif %}" 
+         style="padding: 0.75rem 0.5rem; font-weight: 700; font-size: 1rem; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; border-bottom: 3px solid {% if selected_tab == 'closed' %}var(--indigo-600){% else %}transparent{% endif %}; color: {% if selected_tab == 'closed' %}var(--indigo-600){% else %}var(--slate-500){% endif %}; margin-bottom: -2px;">
+        <i class="fa-solid fa-square-poll-vertical"></i>
+        <span>Closed & Results</span>
+        <span class="badge {% if selected_tab == 'closed' %}badge-published{% else %}badge-closed{% endif %}">{{ closed_elections|length }}</span>
+      </a>
+    </div>
+
+    <!-- TAB CONTENT: ACTIVE ELECTIONS -->
+    {% if selected_tab == 'active' %}
+    <div class="elections-grid">
+      {% for item in active_elections %}
+      <div class="election-card">
+        <div class="election-card-header">
+          <div class="election-top-meta">
+            <span class="badge badge-active">
+              <span class="badge-pulse-dot"></span> Active Now
+            </span>
+            <span class="election-category-tag">{{ item.election.get_category_display }}</span>
+          </div>
+
+          <h3 class="election-card-title">
+            <a href="{% url 'election_detail' slug=item.election.slug %}">{{ item.election.title }}</a>
+          </h3>
+          <p class="election-card-desc">{{ item.election.description }}</p>
+        </div>
+
+        <div class="election-card-body">
+          <!-- Timeline info -->
+          <div class="timeline-info-row">
+            <i class="fa-regular fa-clock"></i>
+            <span>Voting closes: <strong>{{ item.election.end_time|date:"M d, Y · H:i" }} UTC</strong></span>
+          </div>
+
+          <!-- Eligibility info -->
+          <div class="timeline-info-row">
+            {% if item.is_eligible %}
+              <i class="fa-solid fa-circle-check" style="color: var(--emerald-600);"></i>
+              <span style="color: var(--emerald-600); font-weight: 600;">You are eligible to vote</span>
+            {% else %}
+              <i class="fa-solid fa-circle-xmark" style="color: var(--rose-600);"></i>
+              <span style="color: var(--rose-600);">{{ item.eligibility_reason }}</span>
+            {% endif %}
+          </div>
+
+          <!-- Voter Participation Status (Without candidate choice!) -->
+          <div class="timeline-info-row" style="background: var(--slate-100); padding: 0.5rem 0.75rem; border-radius: var(--radius-sm);">
+            {% if item.has_voted %}
+              <i class="fa-solid fa-check-double" style="color: var(--teal-600);"></i>
+              <span style="font-size: 0.8rem; color: var(--navy-800); font-weight: 700;">
+                Ballot Cast (Receipt: {{ item.receipt_token|slice:":12" }}...)
+              </span>
+            {% else %}
+              <i class="fa-regular fa-circle" style="color: var(--slate-400);"></i>
+              <span style="font-size: 0.8rem; color: var(--slate-600);">
+                Ballot not yet cast
+              </span>
+            {% endif %}
+          </div>
+
+          <!-- Turnout Bar -->
+          <div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 600; color: var(--slate-600); margin-bottom: 0.25rem;">
+              <span>Community Turnout</span>
+              <span>{{ item.election.turnout_percentage }}% ({{ item.election.total_votes_cast }} votes)</span>
+            </div>
+            <div class="participation-metric-bar">
+              <div class="participation-fill" style="width: {{ item.election.turnout_percentage }}%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="election-card-footer">
+          <a href="{% url 'election_detail' slug=item.election.slug %}" class="btn btn-secondary btn-sm">
+            <span>Candidates ({{ item.election.candidates.count }})</span>
+          </a>
+
+          {% if item.has_voted %}
+            <a href="{% url 'vote_receipt' slug=item.election.slug receipt=item.receipt_token %}" class="btn btn-success btn-sm">
+              <i class="fa-solid fa-receipt"></i>
+              <span>View Receipt</span>
+            </a>
+          {% elif item.can_vote_now %}
+            <a href="{% url 'vote_select' slug=item.election.slug %}" class="btn btn-primary btn-sm">
+              <i class="fa-solid fa-check-to-slot"></i>
+              <span>Cast Vote</span>
+            </a>
+          {% else %}
+            <span class="btn btn-secondary btn-sm" style="opacity: 0.6; cursor: not-allowed;" title="{{ item.eligibility_reason }}">
+              Ineligible
+            </span>
+          {% endif %}
+        </div>
+      </div>
+      {% empty %}
+      <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; background: var(--white); border-radius: var(--radius-lg); border: 1px dashed var(--slate-300);">
+        <i class="fa-solid fa-inbox" style="font-size: 3rem; color: var(--slate-300); margin-bottom: 1rem;"></i>
+        <h3 style="font-size: 1.35rem; color: var(--navy-800);">No Active Elections Matching Filter</h3>
+        <p style="color: var(--slate-500); margin-top: 0.35rem;">Try resetting your search query or category filter.</p>
+        <a href="{% url 'voter_dashboard' %}?tab=active" class="btn btn-secondary btn-sm" style="margin-top: 1rem;">Reset Filters</a>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- TAB CONTENT: UPCOMING ELECTIONS -->
+    {% if selected_tab == 'upcoming' %}
+    <div class="elections-grid">
+      {% for item in upcoming_elections %}
+      <div class="election-card">
+        <div class="election-card-header">
+          <div class="election-top-meta">
+            <span class="badge badge-scheduled">
+              <i class="fa-regular fa-calendar-check"></i> Scheduled
+            </span>
+            <span class="election-category-tag">{{ item.election.get_category_display }}</span>
+          </div>
+
+          <h3 class="election-card-title">
+            <a href="{% url 'election_detail' slug=item.election.slug %}">{{ item.election.title }}</a>
+          </h3>
+          <p class="election-card-desc">{{ item.election.description }}</p>
+        </div>
+
+        <div class="election-card-body">
+          <div class="timeline-info-row">
+            <i class="fa-regular fa-calendar-plus" style="color: var(--blue-600);"></i>
+            <span>Voting opens: <strong>{{ item.election.start_time|date:"M d, Y · H:i" }} UTC</strong></span>
+          </div>
+          <div class="timeline-info-row">
+            <i class="fa-regular fa-calendar-xmark"></i>
+            <span>Voting closes: {{ item.election.end_time|date:"M d, Y · H:i" }} UTC</span>
+          </div>
+          <div class="timeline-info-row">
+            <i class="fa-solid fa-users"></i>
+            <span>{{ item.election.candidates.count }} Candidates Registered</span>
+          </div>
+          <div style="background: var(--blue-100); color: #0369a1; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); font-size: 0.8rem;">
+            <i class="fa-solid fa-circle-info"></i> Candidate profiles are available for early review and manifesto inspection.
+          </div>
+        </div>
+
+        <div class="election-card-footer">
+          <a href="{% url 'election_detail' slug=item.election.slug %}" class="btn btn-secondary btn-sm">
+            <span>Review Candidates</span>
+          </a>
+          <a href="{% url 'candidate_compare' slug=item.election.slug %}" class="btn btn-outline-teal btn-sm">
+            <i class="fa-solid fa-code-compare"></i>
+            <span>Compare Manifestos</span>
+          </a>
+        </div>
+      </div>
+      {% empty %}
+      <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; background: var(--white); border-radius: var(--radius-lg); border: 1px dashed var(--slate-300);">
+        <i class="fa-regular fa-calendar-xmark" style="font-size: 3rem; color: var(--slate-300); margin-bottom: 1rem;"></i>
+        <h3 style="font-size: 1.35rem; color: var(--navy-800);">No Upcoming Elections Scheduled</h3>
+        <p style="color: var(--slate-500); margin-top: 0.35rem;">Check back later or view active elections.</p>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- TAB CONTENT: CLOSED & PUBLISHED ELECTIONS -->
+    {% if selected_tab == 'closed' %}
+    <div class="elections-grid">
+      {% for item in closed_elections %}
+      <div class="election-card">
+        <div class="election-card-header">
+          <div class="election-top-meta">
+            {% if item.election.status == 'RESULTS_PUBLISHED' %}
+              <span class="badge badge-published">
+                <i class="fa-solid fa-certificate"></i> Certified Results
+              </span>
+            {% else %}
+              <span class="badge badge-closed">
+                <i class="fa-solid fa-lock"></i> Closed (Tallying)
+              </span>
+            {% endif %}
+            <span class="election-category-tag">{{ item.election.get_category_display }}</span>
+          </div>
+
+          <h3 class="election-card-title">
+            <a href="{% url 'election_detail' slug=item.election.slug %}">{{ item.election.title }}</a>
+          </h3>
+          <p class="election-card-desc">{{ item.election.description }}</p>
+        </div>
+
+        <div class="election-card-body">
+          <div class="timeline-info-row">
+            <i class="fa-solid fa-check-to-slot"></i>
+            <span>Total Certified Ballots: <strong>{{ item.election.total_votes_cast }}</strong></span>
+          </div>
+          <div class="timeline-info-row">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span>Final Turnout: <strong>{{ item.election.turnout_percentage }}%</strong></span>
+          </div>
+          {% if item.has_voted %}
+          <div class="timeline-info-row" style="background: var(--slate-100); padding: 0.45rem 0.65rem; border-radius: var(--radius-sm);">
+            <i class="fa-solid fa-receipt" style="color: var(--teal-600);"></i>
+            <span style="font-size: 0.8rem;">You participated (Receipt: {{ item.receipt_token|slice:":12" }}...)</span>
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="election-card-footer">
+          <a href="{% url 'election_detail' slug=item.election.slug %}" class="btn btn-secondary btn-sm">
+            <span>Election Info</span>
+          </a>
+          {% if item.election.status == 'RESULTS_PUBLISHED' %}
+            <a href="{% url 'results' slug=item.election.slug %}" class="btn btn-primary btn-sm">
+              <i class="fa-solid fa-chart-simple"></i>
+              <span>View Certified Results</span>
+            </a>
+          {% else %}
+            <span class="btn btn-secondary btn-sm" style="opacity: 0.6; cursor: not-allowed;">
+              <i class="fa-solid fa-hourglass-half"></i> Results Pending
+            </span>
+          {% endif %}
+        </div>
+      </div>
+      {% empty %}
+      <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; background: var(--white); border-radius: var(--radius-lg); border: 1px dashed var(--slate-300);">
+        <i class="fa-solid fa-poll" style="font-size: 3rem; color: var(--slate-300); margin-bottom: 1rem;"></i>
+        <h3 style="font-size: 1.35rem; color: var(--navy-800);">No Closed or Certified Results Yet</h3>
+        <p style="color: var(--slate-500); margin-top: 0.35rem;">Published results will appear here once elections conclude.</p>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </main>
+</div>
+{% endblock %}

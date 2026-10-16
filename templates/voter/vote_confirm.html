@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Confirm Selection — {{ election.title }}{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 3rem 1rem;">
+  <div class="confirmation-card">
+    <div class="confirmation-icon">
+      <i class="fa-solid fa-stamp"></i>
+    </div>
+
+    <span style="font-size: 0.8rem; font-weight: 700; color: var(--teal-600); text-transform: uppercase; letter-spacing: 0.08em; display: block; margin-bottom: 0.5rem;">
+      FINAL CONFIRMATION · STEP 2 OF 2
+    </span>
+    <h1 style="font-size: 2rem; color: var(--navy-950); margin-bottom: 0.75rem;">
+      Confirm Your Confidential Vote
+    </h1>
+    <p style="color: var(--slate-600); font-size: 0.95rem; margin-bottom: 2rem;">
+      Please review your selected candidate for <strong>{{ election.title }}</strong> before certifying your ballot.
+    </p>
+
+    <!-- Candidate Summary Box -->
+    <div style="background: var(--slate-50); border: 2px solid var(--teal-500); border-radius: var(--radius-lg); padding: 1.75rem; margin-bottom: 2rem; text-align: left; display: flex; align-items: center; gap: 1.5rem;">
+      <div class="candidate-avatar" style="width: 72px; height: 72px; font-size: 1.75rem; background: {{ candidate.avatar_color|default:'#0284c7' }}; flex-shrink: 0;">
+        {{ candidate.avatar_initials|default:candidate.name|slice:":2"|upper }}
+      </div>
+      <div style="flex-grow: 1;">
+        <span style="font-size: 0.75rem; font-weight: 700; color: var(--slate-500); text-transform: uppercase;">
+          BALLOT POSITION #{{ candidate.ballot_number }}
+        </span>
+        <h3 style="font-size: 1.4rem; color: var(--navy-950); margin: 0.15rem 0;">{{ candidate.name }}</h3>
+        <span class="candidate-party-badge">{{ candidate.party_or_slate|default:"Independent" }}</span>
+        <span style="font-size: 0.85rem; color: var(--slate-600); display: block; margin-top: 0.25rem;">
+          {{ candidate.role_title }}
+        </span>
+      </div>
+      <div style="text-align: right;">
+        <i class="fa-solid fa-circle-check" style="font-size: 2.2rem; color: var(--teal-600);"></i>
+      </div>
+    </div>
+
+    <!-- Irreversible Warning Alert -->
+    <div class="irreversible-warning-box">
+      <i class="fa-solid fa-triangle-exclamation" style="font-size: 1.25rem; color: #d97706; margin-top: 0.15rem;"></i>
+      <div>
+        <strong style="display: block; margin-bottom: 0.25rem; color: #78350f;">Irreversible Ballot Certification</strong>
+        Once submitted, your vote is permanent and anonymous. The double-blind protocol will uncouple your identity from this choice. You cannot modify, rescind, or re-submit a ballot in this election.
+      </div>
+    </div>
+
+    <!-- Form for Final Submission -->
+    <form method="POST" action="{% url 'vote_submit' slug=election.slug %}">
+      {% csrf_token %}
+      <input type="hidden" name="candidate_id" value="{{ candidate.id }}">
+
+      <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+        <a href="{% url 'vote_select' slug=election.slug %}" class="btn btn-secondary">
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>Change Selection</span>
+        </a>
+        <button type="submit" class="btn btn-primary btn-lg" style="background: linear-gradient(135deg, var(--emerald-600), var(--teal-600));">
+          <i class="fa-solid fa-check-to-slot"></i>
+          <span>Confirm & Submit Ballot</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
